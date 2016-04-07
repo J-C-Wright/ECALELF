@@ -2,6 +2,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "Calibration/EcalAlCaRecoProducers/interface/AltDeltaPhi.h"
 
 /// Producer constructor
 template< typename TEle, typename TCand>
@@ -250,7 +251,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
        module.x = (*itTracker)->position().x();
        module.y = (*itTracker)->position().y();
        module.z = (*itTracker)->position().z();
-       module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
+       module.Phi = (*itTracker)->position().phi();//normalizedPhi((*itTracker)->position().phi()) ; 
        module.Eta = (*itTracker)->position().eta() ;
        module.DetId  = (*itTracker)->geographicalId().rawId();
        const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
@@ -489,8 +490,10 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
            else momentum = electron.track()->momentum();
            PixelRegion region (momentum,dPhiPixelRegion_,dEtaPixelRegion_,maxZPixelRegion_);
 
-           PixelModule lowerBound (normalizedPhi(region.vector.phi())-region.dPhi, region.vector.eta()-region.dEta);
-           PixelModule upperBound (normalizedPhi(region.vector.phi())+region.dPhi, region.vector.eta()+region.dEta);
+           //PixelModule lowerBound (normalizedPhi((double)region.vector.phi())-region.dPhi, region.vector.eta()-region.dEta);
+           //PixelModule upperBound (normalizedPhi((double)region.vector.phi())+region.dPhi, region.vector.eta()+region.dEta);
+           PixelModule lowerBound (region.vector.phi()-region.dPhi, region.vector.eta()-region.dEta);
+           PixelModule upperBound (region.vector.phi()+region.dPhi, region.vector.eta()+region.dEta);
 
            std::vector<PixelModule>::const_iterator itUp, itDn ;
            if(lowerBound.Phi >= -M_PI  && upperBound.Phi <= M_PI ){
