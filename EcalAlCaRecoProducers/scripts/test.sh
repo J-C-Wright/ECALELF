@@ -10,13 +10,20 @@ echo "[INFO] Creating a user directory in /tmp"
 myRawFile="/store/data/Run2016B/SingleElectron/RAW/v2/000/273/450/00000/F448588C-4F1A-E611-AEB9-02163E0145B3.root"
 
 #cmsDriver.py myreco -s RAW2DIGI,RECO -n 100  --filein=$myRawFile --data --conditions=$GT --era=Run2_2016  --scenario=pp --processName=reRECO --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs --dirout=$PWD
+myRecoFile="file:myreco_RAW2DIGI_RECO.root"
 
 #ALCARAW step
-myRecoFile="file:myreco_RAW2DIGI_RECO.root"
-cmsDriver.py myreco -s ALCA:EcalUncalWElectron -n 100 --data --filein=$myRecoFile --conditions=$GT --secondfilein=$myRawFile --dirout=$PWD --era=Run2_2016  --scenario=pp --processName=alcaRaw --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
+#cmsDriver.py myreco -s ALCA:EcalUncalWElectron -n 100 --data --filein=$myRecoFile --conditions=$GT --secondfilein=$myRawFile --dirout=$PWD --era=Run2_2016  --scenario=pp --processName=alcaRaw --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
+myUncalWFile="file:EcalUncalWElectron.root"
 
 #ALCARECO step
+#cmsDriver.py myreco -s ALCA:EcalCalWElectron -n 100 --data --filein=$myRecoFile --conditions=$GT --secondfilein=$myRawFile --dirout=$PWD --era=Run2_2016  --scenario=pp --processName=alcaReco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
+myCalWFile="file:EcalCalWElectron.root"
 
+#RERECO step
+cmsDriver.py myreco -s ALCA:EcalRecalElectron -n 100 --data --conditions=$GT --nThreads=4 --filein=$myUncalWFile --dirout=$PWD --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal --era=Run2_2016  --scenario=pp --processName=alcaReReco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
+
+cmsRun python/alcaSkimming.py isCrab=0 skim=WSkim maxEvents=100 type=ALCARECO files=$myCalWFile doTree=3 tagFile=config/reRecoTags/test75x.py doTreeOnly=1
 
 
 
