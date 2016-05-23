@@ -127,6 +127,7 @@ if(options.doTree>0 and options.doTreeOnly==1):
     doTreeOnly=True
     processName = processName+'DUMP'
     
+print "Process name is ", processName
 
 #    _____  __             _             _         _
 #   / ____|/ _|           | |           | |       | |
@@ -474,7 +475,6 @@ if(options.type!="MINIAODNTUPLE"):
     if(MC):
         process.ntupleSeq = cms.Sequence(process.jsonFilter * process.patSequenceMC)
     else:
-        print "DEBUG 1"
         process.ntupleSeq = cms.Sequence(process.jsonFilter * process.patSequence)
 else:
     process.load('PhysicsTools.PatAlgos.slimming.MiniAODfromMiniAOD_cff')
@@ -840,7 +840,6 @@ process.alcaElectronTracksReducer.electronLabel = myEleCollection
 #process.eleNewEnergiesProducer.recHitCollectionEB = cms.InputTag("alCaIsolatedElectrons", "alCaRecHitsEB")
 #process.eleNewEnergiesProducer.recHitCollectionEE = cms.InputTag("alCaIsolatedElectrons", "alCaRecHitsEE")
 if(options.type!="MINIAODNTUPLE"):
-    print "DEBUG 2"
     process.eleNewEnergiesProducer.recHitCollectionEB = cms.InputTag("alCaIsolatedElectrons", "alcaBarrelHits")
     process.eleNewEnergiesProducer.recHitCollectionEE = cms.InputTag("alCaIsolatedElectrons", "alcaEndcapHits")
 
@@ -912,10 +911,8 @@ if(options.type=="ALCARERECO"):
         print "[ERROR] only bunchSpacing of 50 and 25 are implemented"
         exit(1)
         
-print "DEBUG 3"
 process.patElectrons.reducedBarrelRecHitCollection = process.eleNewEnergiesProducer.recHitCollectionEB
 process.patElectrons.reducedEndcapRecHitCollection = process.eleNewEnergiesProducer.recHitCollectionEE
-print "DEBUG 4"
 #process.zNtupleDumper.recHitCollectionEB = process.eleNewEnergiesProducer.recHitCollectionEB
 #process.zNtupleDumper.recHitCollectionEE = process.eleNewEnergiesProducer.recHitCollectionEE
 
@@ -925,8 +922,5 @@ if(options.type=="ALCARECOSIM"):
 ############################
 ## Dump the output Python ##
 ############################
-print "DEBUG 5"
 processDumpFile = open('processDump.py', 'w')
-print "DEBUG 6"
 print >> processDumpFile, process.dumpPython()
-print "DEBUG 7"
