@@ -240,6 +240,8 @@ process.options = cms.untracked.PSet(
 if(len(options.tagFile)>0):
     execfile(options.tagFile) # load the GT 
     process.GlobalTag = RerecoGlobalTag 
+    print "[INFO] config GT ", RerecoGlobalTag
+    print "[INFO] Using GT ", process.GlobalTag.globaltag
 else:
     if(options.type=="ALCARERECO" and not doTreeOnly):
         print "******************************"
@@ -325,7 +327,7 @@ else:
         if(options.files==""):
             process.source.fileNames=[ 'root://cms-xrd-global.cern.ch//store/data/Run2012D/DoubleElectron/AOD/15Apr2014-v1/00000/0EA11D35-0CD5-E311-862E-0025905A6070.root' ]
 
-if(re.match("CMSSW_7_.*",CMSSW_VERSION)):
+if(re.match("CMSSW_7_.*",CMSSW_VERSION) or re.match("CMSSW_8_.*",CMSSW_VERSION)):
     myEleCollection =  cms.InputTag("gedGsfElectrons")
 else:
     myEleCollection =  cms.InputTag("gsfElectrons")
@@ -337,7 +339,7 @@ if(options.type=="MINIAODNTUPLE" ):
 # particle flow isolation
 #
 process.pfIsoEgamma = cms.Sequence()
-if(not re.match("CMSSW_7_.*_.*",CMSSW_VERSION)):
+if(not re.match("CMSSW_7_.*_.*",CMSSW_VERSION) and not re.match("CMSSW_8_.*_.*",CMSSW_VERSION)):
     if((options.type=='ALCARECO' or options.type=='ALCARECOSIM' or options.type=='ALCARAW') and not re.match("CMSSW_7_.*_.*",CMSSW_VERSION)):
         from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
         process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons', 'PFIso')
@@ -453,7 +455,7 @@ else:
     print "** TrivialConditionRetriver defined"
     process.trivialCond = cms.Sequence( EcalTrivialConditionRetriever )
 
-if(re.match("CMSSW_7_.*", CMSSW_VERSION)):
+if(re.match("CMSSW_7_.*", CMSSW_VERSION) or re.match("CMSSW_8_.*_.*",CMSSW_VERSION)):
     process.alcarerecoSeq=cms.Sequence( process.trivialCond * process.seqALCARECOEcalRecalElectron * process.reducedEcalRecHitsES)
 else:
     process.alcarerecoSeq=cms.Sequence( process.trivialCond * process.sandboxRerecoSeq * (process.ALCARECOEcalCalElectronECALSeq + process.reducedEcalRecHitsES))
@@ -472,6 +474,7 @@ if(options.type!="MINIAODNTUPLE"):
     if(MC):
         process.ntupleSeq = cms.Sequence(process.jsonFilter * process.patSequenceMC)
     else:
+        print "DEBUG 1"
         process.ntupleSeq = cms.Sequence(process.jsonFilter * process.patSequence)
 else:
     process.load('PhysicsTools.PatAlgos.slimming.MiniAODfromMiniAOD_cff')
@@ -575,7 +578,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 
 
 # ALCARAW
-if (not re.match("CMSSW_7_.*",CMSSW_VERSION)):
+if (not re.match("CMSSW_7_.*",CMSSW_VERSION) and not re.match("CMSSW_8_.*",CMSSW_VERSION)):
     uncalibRecHitSeq = cms.Sequence( (ecalDigis + ecalPreshowerDigis) * ecalUncalibRecHitSequence)  #containing the new local reco for 72X
 
     process.pathALCARECOEcalUncalSingleElectron = cms.Path(process.PUDumperSeq * process.filterSeq *
@@ -692,7 +695,7 @@ if(options.doTree>0):
     else:
         if(len(options.jsonFile)>0):
             print "[INFO] Using json file"
-            if(re.match("CMSSW_5_.*_.*",CMSSW_VERSION) or re.match("CMSSW_6_.*_.*",CMSSW_VERSION) or re.match("CMSSW_7_.*_.*",CMSSW_VERSION) ):
+            if(re.match("CMSSW_5_.*_.*",CMSSW_VERSION) or re.match("CMSSW_6_.*_.*",CMSSW_VERSION) or re.match("CMSSW_7_.*_.*",CMSSW_VERSION) or re.match("CMSSW_8_.*_.*",CMSSW_VERSION)):
                 # from CMSSW 5.0.0
                 import FWCore.PythonUtilities.LumiList as LumiList
                 process.source.lumisToProcess = LumiList.LumiList(filename = options.jsonFile).getVLuminosityBlockRange()
@@ -837,6 +840,7 @@ process.alcaElectronTracksReducer.electronLabel = myEleCollection
 #process.eleNewEnergiesProducer.recHitCollectionEB = cms.InputTag("alCaIsolatedElectrons", "alCaRecHitsEB")
 #process.eleNewEnergiesProducer.recHitCollectionEE = cms.InputTag("alCaIsolatedElectrons", "alCaRecHitsEE")
 if(options.type!="MINIAODNTUPLE"):
+    print "DEBUG 2"
     process.eleNewEnergiesProducer.recHitCollectionEB = cms.InputTag("alCaIsolatedElectrons", "alcaBarrelHits")
     process.eleNewEnergiesProducer.recHitCollectionEE = cms.InputTag("alCaIsolatedElectrons", "alcaEndcapHits")
 
@@ -908,8 +912,10 @@ if(options.type=="ALCARERECO"):
         print "[ERROR] only bunchSpacing of 50 and 25 are implemented"
         exit(1)
         
+print "DEBUG 3"
 process.patElectrons.reducedBarrelRecHitCollection = process.eleNewEnergiesProducer.recHitCollectionEB
 process.patElectrons.reducedEndcapRecHitCollection = process.eleNewEnergiesProducer.recHitCollectionEE
+print "DEBUG 4"
 #process.zNtupleDumper.recHitCollectionEB = process.eleNewEnergiesProducer.recHitCollectionEB
 #process.zNtupleDumper.recHitCollectionEE = process.eleNewEnergiesProducer.recHitCollectionEE
 
@@ -919,5 +925,8 @@ if(options.type=="ALCARECOSIM"):
 ############################
 ## Dump the output Python ##
 ############################
+print "DEBUG 5"
 processDumpFile = open('processDump.py', 'w')
+print "DEBUG 6"
 print >> processDumpFile, process.dumpPython()
+print "DEBUG 7"

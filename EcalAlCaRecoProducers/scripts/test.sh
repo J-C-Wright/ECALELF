@@ -4,7 +4,7 @@ echo "============================================================"
 echo "Script for sandbox validation on a small amount of events   "
 
 
-echo "[INFO] Creating a user directory in /tmp"
+#echo "[INFO] Creating a user directory in /tmp"
 
 #myRawFile=`das_client --query="file dataset=/DoubleEG/Run2016B-v2/RAW" --limit 1 | grep store`
 myRawFile="/store/data/Run2016B/SingleElectron/RAW/v2/000/273/450/00000/F448588C-4F1A-E611-AEB9-02163E0145B3.root"
@@ -21,9 +21,11 @@ myUncalWFile="file:EcalUncalWElectron.root"
 myCalWFile="file:EcalCalWElectron.root"
 
 #RERECO step
-cmsDriver.py myreco -s ALCA:EcalRecalElectron -n 100 --data --conditions=$GT --nThreads=4 --filein=$myUncalWFile --dirout=$PWD --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal --era=Run2_2016  --scenario=pp --processName=alcaReReco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
+#echo "[INFO] ALCARERECO Step"
+#cmsDriver.py myreco -s ALCA:EcalRecalElectron -n 100 --data --conditions=$GT --nThreads=4 --filein=$myUncalWFile --dirout=$PWD --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal --era=Run2_2016  --scenario=pp --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
 
-cmsRun python/alcaSkimming.py isCrab=0 skim=WSkim maxEvents=100 type=ALCARECO files=$myCalWFile doTree=3 tagFile=config/reRecoTags/test75x.py doTreeOnly=1
+echo "[INFO] NTuples from ALCARECO"
+cmsRun python/alcaSkimming.py isCrab=0 skim=WSkim maxEvents=100 type=ALCARECO files=$myCalWFile doTree=3 tagFile=config/reRecoTags/test80x.py doTreeOnly=1 
 
 
 
