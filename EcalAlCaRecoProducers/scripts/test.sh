@@ -3,8 +3,6 @@ GT=80X_dataRun2_Prompt_v8
 echo "============================================================"
 echo "Script for sandbox validation on a small amount of events   "
 
-#myRawSingleEFileTest=`das_client --query="file dataset=/DoubleEG/Run2016B-v2/RAW" --limit 1 | sort file.nevents`
-
 #echo "[INFO] Creating a user directory in /tmp"
 dir="Electron-Run2016B"
 mkdir {Single,Double}$dir
@@ -29,7 +27,7 @@ myUncalZFilePath="file:$doubleDir/EcalUncalZElectron.root"
 #ALCARECO step
 #cmsDriver.py myreco -s ALCA:EcalCalWElectron -n 100 --data --filein=$mySingleERecoFilePath --conditions=$GT --secondfilein=$myRawSingleEFile --dirout=$singleDir --era=Run2_2016  --scenario=pp --processName=alcaReco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
 myCalWFilePath="file:$singleDir/EcalCalWElectron.root"
-#cmsDriver.py myreco -s ALCA:EcalCalWElectron -n 100 --data --filein=$myDoubleEGRecoFilePath --conditions=$GT --secondfilein=$myRawDoubleEGFile --dirout=$doubleDir --era=Run2_2016  --scenario=pp --processName=alcaReco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
+#cmsDriver.py myreco -s ALCA:EcalCalZElectron -n 100 --data --filein=$myDoubleEGRecoFilePath --conditions=$GT --secondfilein=$myRawDoubleEGFile --dirout=$doubleDir --era=Run2_2016  --scenario=pp --processName=alcaReco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
 myCalZFilePath="file:$doubleDir/EcalCalZElectron.root"
 
 #RERECO step
@@ -37,7 +35,7 @@ myCalZFilePath="file:$doubleDir/EcalCalZElectron.root"
 #cmsDriver.py myreco -s ALCA:EcalRecalElectron -n 100 --data --conditions=$GT --nThreads=4 --filein=$myUncalZFilePath --dirout=$doubleDir --customise_commands="process.options=cms.untracked.PSet(wantSummary=cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal --era=Run2_2016  --scenario=pp --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs 
 
 echo "[INFO] NTuples from ALCARECO"
-cmsRun python/alcaSkimming.py isCrab=0 skim=WSkim maxEvents=100 type=ALCARECO files=$myCalWFilePath doTree=3 tagFile=config/reRecoTags/test80x.py doTreeOnly=1 
-
+#cmsRun python/alcaSkimming.py isCrab=0 skim=WSkim maxEvents=100 type=ALCARECO files=$myCalWFilePath doTree=3 tagFile=config/reRecoTags/test80x.py doTreeOnly=1 
+cmsRun python/alcaSkimming.py isCrab=0 skim=ZSkim maxEvents=100 type=ALCARECO files=$myCalZFilePath doTree=3 tagFile=config/reRecoTags/test80x.py doTreeOnly=1 
 
 exit 0
