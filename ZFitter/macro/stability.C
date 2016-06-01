@@ -214,13 +214,13 @@ TCanvas *var_Stability(TString filename_corr, TString region, double rMin=3, dou
   float labelScale=1;
   if(column>3) labelScale=2;
 
-  if(!yTitle.Sizeof()>1){
+  if(!(yTitle.Sizeof()>1)){
     if(filename_corr.Contains("bias")) yTitle="#Delta m [GeV/c^{2}]";
     else if(filename_corr.Contains("sigmaCBover")) yTitle="#sigma_{CB}/peak_{CB} [%]";
     else if(filename_corr.Contains("sigma")) yTitle="#sigma_{CB} [GeV/c^{2}]";
   }
 
-  if(!xTitle.Sizeof()>1){    
+  if(!(xTitle.Sizeof()>1)){    
     if(filename_corr.Contains("nPV"))     xTitle = "Number of reconstructed vertexes";
     if(filename_corr.Contains("runNumber")) xTitle="runNumber";
     if(filename_corr.Contains("unixtime")) xTitle="Time";
@@ -832,7 +832,7 @@ TCanvas *var_Stability(std::vector<TString> filenameList, std::vector<TString> l
       std::cout << out_char << std::endl;
     }
 
-    if(abs(column)!=onlyData && abs(column)!=dataOverMC && abs(column)!=onlyDataBis && abs(column)!=dataMC || (abs(column)==dataMC && index==0)){
+    if((abs(column)!=onlyData && abs(column)!=dataOverMC && abs(column)!=onlyDataBis && abs(column)!=dataMC) || (abs(column)==dataMC && index==0)){
     std::cout << doStatistics << "\t" << doFit << std::endl;
 
 
