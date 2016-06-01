@@ -2,7 +2,7 @@
 
 #tag_name=""
 commonCut=Et_25
-selection=WP80_PU
+selection=loose
 invMass_var=invMass_SC_regrCorr_ele
 configFile=data/validation/monitoring_2012_53X.dat 
 FLOATTAILSTEXT="Fixed Tail" 
@@ -103,6 +103,8 @@ case ${selection} in
     WP80_PU)
         ;;
     WP90_PU)
+	;;
+    loose)
 	;;
     *)
 			exit 1
