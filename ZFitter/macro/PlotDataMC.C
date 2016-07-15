@@ -196,6 +196,8 @@ TCanvas *PlotDataMC(TChain *data, TChain *mc, TString branchname, TString binnin
   selection_MC+=selection;
 
   std::cout<<"qui"<<std::endl;
+  std::cout << "data: " << selection_data << endl;
+  std::cout << "MC:   " << selection_MC   << endl;
 
   if(smear){
     branchNameMC.ReplaceAll("invMass_SC_regrCorr_pho ","(invMass_SC_regrCorr_pho*sqrt(smearEle[0]*smearEle[1]))");
