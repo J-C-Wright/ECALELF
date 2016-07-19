@@ -679,6 +679,7 @@ int main(int argc, char **argv) {
   for(std::vector<TString>::const_iterator region_itr = regions.begin(); region_itr != regions.end(); region_itr++){
     if(runRanges.size()>0){
       for(std::vector<TString>::const_iterator runRange_itr = runRanges.begin();runRange_itr!=runRanges.end();runRange_itr++){
+        //std::cout << runRange_itr << std::endl;
         TString token1,token2;
         //Ssiz_t ss=0;                                                                                                                                                          
         //std::cout<<"Io parto da questo "<<(*runRange_itr)<<std::endl;                                                                                                         

@@ -9,7 +9,7 @@ FLOATTAILSTEXT="Fixed Tail"
 runRangesFile=data/runRanges/monitoring.dat 
 baseDir=test
 xVar=runNumber
-pdateOnly="--updateOnly"
+updateOnly="--updateOnly"
 GITTAG="lcorpe:topic-quickrereco-lcsh-fix-rebase" #should eventually get this automatically from file or option
 GLOBALTAG="74X-lcdataRun2-lcPrompt-lcv0" #should eventually get this automatically from file or option
 
@@ -185,12 +185,14 @@ fi
 
 ##################################################
 if [ -n "$STABILITY" ];then
+echo $updateOnly
+echo "Before stability"
 regionFile=data/regions/stability.dat
 ./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionFile}  --runRangesFile ${runRangesFile} \
     $updateOnly --invMass_var ${invMass_var} \
     --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
     --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img --commonCut=${commonCut}> ${outDirData}/log/stability.log || exit 1
-
+echo "After stability"
 ./script/makeTable.sh --regionsFile ${regionFile}  --runRangesFile ${runRangesFile} --commonCut=${commonCut} \
     --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
     >  ${outDirTable}/monitoring_stability-${invMass_var}-${selection}.tex || exit 1
