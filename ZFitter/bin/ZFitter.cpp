@@ -222,6 +222,9 @@ std::string energyBranchNameFromInvMassName(std::string invMass_var){
   else if(invMass_var=="invMass_SC") energyBranchName = "energySCEle";
   else if(invMass_var=="invMass_SC_corr") energyBranchName = "energySCEle_corr";
   else if(invMass_var=="invMass_SC_pho_regrCorr") energyBranchName = "energySCEle_pho_regrCorr";
+  else if(invMass_var=="invMass_fulle5x5") energyBranchName = "e_full5x5SCEle";
+  else if(invMass_var=="invMass_e5x5") energyBranchName = "e5x5SCEle";
+  else if(invMass_var == "invMass_SC_must_regrCorr_ele") energyBranchName = "energySCEle_must_regrCorr_ele";
   else if(invMass_var=="invMass_SC_regrCorrSemiParV4_ele") energyBranchName = "energySCEle_regrCorrSemiParV4_ele";
   else if(invMass_var=="invMass_SC_regrCorrSemiParV4_pho") energyBranchName = "energySCEle_regrCorrSemiParV4_pho";
   else if(invMass_var=="invMass_SC_regrCorrSemiParV5_ele") energyBranchName = "energySCEle_regrCorrSemiParV5_ele";
@@ -690,7 +693,6 @@ int main(int argc, char **argv) {
         //std::cout<<"Token 2 is "<<token2<<std::endl;                                                                                                                          
         TString x = (*runRange_itr);
         TObjArray *tx = x.Tokenize("-");
-        tx->Print();
         token1=((TObjString *)(tx->At(0)))->String();
         token2=((TObjString *)(tx->At(1)))->String();
         //for (Int_t i = 0; i < tx->GetEntries(); i++){std::cout << ((TObjString *)(tx->At(i)))->String() << std::endl;}                                                        
@@ -1700,6 +1702,7 @@ int main(int argc, char **argv) {
   fitter.SetPDF_model(signal_type_value,0); // (0,0) convolution, CB no_bkg
   //fitter.SetPDF_model(1,0); // cruijff, no_bkg
 
+  std::cout << "DEBUG -SF" << std::endl;
   if(!vm.count("smearerFit")){ 
 
     fitter.Import(commonCut.c_str(), eleID, activeBranchList);
@@ -1707,9 +1710,9 @@ int main(int argc, char **argv) {
 	category_itr != categories.end();
 	category_itr++){
       myClock.Start();
-#ifdef DEBUG
+
       std::cout << "[DEBUG] category: " << *category_itr << std::endl;
-#endif
+
       if (vm.count("runToy")) { 
 	cout << "number of toys: "<<nToys<<endl;
 	fitter.SetInitFileMC(outDirFitResMC+"/"+*category_itr+".txt");
@@ -1722,6 +1725,7 @@ int main(int argc, char **argv) {
   }
 
   myClock.Reset();
+  std::cout << "DEBUG -SF" << std::endl;
   if(vm.count("smearerFit")){
 
 	smearer.SetHistBinning(80,100,invMass_binWidth); // to do before Init

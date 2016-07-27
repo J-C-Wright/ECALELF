@@ -1,0 +1,13 @@
+# regions defined for condition validation
+EBp
+EEp
+EBp-absEta_0_1
+EBp-absEta_1_1.4442
+EEp-absEta_1.566_2
+EEp-absEta_2_2.5
+EBm
+EEm
+EBm-absEta_0_1
+EBm-absEta_1_1.4442
+EEm-absEta_1.566_2
+EEm-absEta_2_2.5

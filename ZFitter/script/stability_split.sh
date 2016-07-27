@@ -7,10 +7,11 @@ invMass_var=invMass_SC_regrCorr_ele
 configFile=data/validation/monitoring_2012_53X.dat 
 FLOATTAILSTEXT="Fixed Tail" 
 runRangesFile=data/runRanges/monitoring.dat 
+regionsFile=data/regions/stability.dat
 baseDir=test
 xVar=runNumber
 #updateOnly="--updateOnly"
-updateOnly=""
+updateOnly="--updateOnly"
 GITTAG="lcorpe:topic-quickrereco-lcsh-fix-rebase" #should eventually get this automatically from file or option
 GLOBALTAG="74X-lcdataRun2-lcPrompt-lcv0" #should eventually get this automatically from file or option
 
@@ -27,8 +28,10 @@ usage(){
     echo " --runRangesFile arg (=${runRangesFile})  run ranges for stability plots"
     echo " --selection arg (=${selection})     "
     echo " --invMass_var arg (=${invMass_var})"
+    echo " --regionsFile arg (=${regionsFile})"
     echo " --validation        "
     echo " --stability         "
+    echo " --cruijff         "
     echo " --slides            "
     echo " --noPU            "
     echo " --floatTails            "
@@ -46,7 +49,7 @@ desc(){
 
 
 # options may be followed by one colon to indicate they have a required argument
-if ! options=$(getopt -u -o hf: -l help,runRangesFile:,selection:,invMass_var:,puName:,dataName:,baseDir:,rereco:,validation,stability,slides,noPU,floatTails -- "$@")
+if ! options=$(getopt -u -o hf: -l help,runRangesFile:,regionsFile:,selection:,invMass_var:,puName:,dataName:,baseDir:,rereco:,validation,stability,cruijff,slides,noPU,floatTails -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     exit 1
@@ -63,10 +66,12 @@ do
 	--puName) puName=$2; shift;;
 	--dataName) dataName=$2; shift;;
 	--runRangesFile) runRangesFile=$2; echo "[OPTION] runRangesFile = ${runRangesFile}"; shift;;
+	--regionsFile) regionsFile=$2; echo "[OPTION] regionsFile = ${regionsFile}"; shift;;
 	--baseDir) baseDir=$2; echo "[OPTION] baseDir = $baseDir"; shift;;
 	--rereco) rereco=$2; echo "[OPTION] rereco = $rereco"; shift;;
 	--validation) VALIDATION=y;;
 	--stability)  STABILITY=y;;
+	--cruijff)  CRUIJFF="--signal_type_value=1";;
 	--slides)     SLIDES=y;;
 	--noPU)     NOPUOPT="--noPU"; NOPU="noPU";;
 	--floatTails)    FLOATTAILSOPT="--fit_type_value=0"; FLOATTAILS="floatingTail"; FLOATTAILSTEXT="Floating Tail";;
@@ -171,10 +176,9 @@ echo "$outDirMC" > $outDirData/whichMC.txt
 
 ##################################################
 
-regionFile=data/regions/stability.dat
-./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionFile}  --runRangesFile ${runRangesFile} \
+./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionsFile}  --runRangesFile ${runRangesFile} \
     $updateOnly --invMass_var ${invMass_var} \
     --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
-    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img --commonCut=${commonCut} || exit 1
+    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img --commonCut=${commonCut} $CRUIJFF || exit 1
 
 

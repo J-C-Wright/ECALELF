@@ -37,7 +37,8 @@ def createSplitRunRangeFiles(path = 'data/runRanges/',runRangesFile = ''):
 
 def createSplitRunScripts(splitFiles = [],configPath='data/validation/',
                           configFile = '',invMass = 'invMass_SC_corr',baseDir='',
-                          updateOnly = '--updateOnly', outDirMC = '', outDirData = '',commonCut='Et_25'):
+                          outDirMC = '', outDirData = '',commonCut='Et_25',
+                          regionsFile = 'data/regions/stability.dat',extraOptions=''):
 
     assert (configFile != ''),'validation file name is empty'
     assert (len(splitFiles) != 0),'SplitFiles is empty'
@@ -63,11 +64,14 @@ def createSplitRunScripts(splitFiles = [],configPath='data/validation/',
         scriptContent += './script/stability_split.sh'
         scriptContent += ' -f '+configPath+configFile
         scriptContent += ' --runRangesFile '+file
+        scriptContent += ' --regionsFile '+regionsFile
         scriptContent += ' --invMass_var '+invMass
         scriptContent += ' --baseDir '+baseDir
         scriptContent += ' --stability'
-        logname = scriptName.split('/')[-1].replace('.sh','.log')
-        scriptContent += ' > '+outDirData+'/log/'+logname
+        if extraOptions != '':
+            scriptContent += ' ' + extraOptions
+        #logname = scriptName.split('/')[-1].replace('.sh','.log')
+        #scriptContent += ' > '+outDirData+'/log/'+logname
         scriptContent += '\n'
 
         #Write to the script file...
@@ -135,11 +139,13 @@ def getMCNameAndPUName(configPath = 'data/validation/',configFile = ''):
     f.close()
     return [mcName,puName]
 
+
 def createWhichMC(outDirData='',baseDir='',configFile='',selection='',invMass='',configPath='data/validation/'):
         mcName,puName = getMCNameAndPUName(configFile=configFile)
         whichMC = open(outDirData+'whichMC.txt','w')
         whichMC.write(baseDir+'/MC/'+mcName+'/'+puName+'/'+selection+'/'+invMass+'/')
         whichMC.close()
+
 
 def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=False):
 
@@ -159,26 +165,28 @@ def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=Fal
         command += 'bsub'
         command += ' -R "pool>30000" -q '+queue
         if len(jobNames) == 0:
-            command += ' -J StabSplit'+str(i)
+            command += ' -J Split'+str(i)
         else:
             command += ' -J '+jobNames[i]
         command += ' < '+cwd+'/'+script
 
         #Submit command
+        if len(jobNames) == 0:
+            print 'Submitting Split'+str(i)
+            jobs.append('Split'+str(i))
+        else:
+            print 'Submitting ',jobNames[i]
+            jobs.append(jobNames[i])
+
         if not dryRun:
             output = popen(command).read()
             print output
 
-        if len(jobNames) == 0:
-            jobs.append('StabSplit'+str(i))
-        else:
-            jobs.append(jobNames[i])
-
     return jobs
 
-def makeTable(runRangesDir = 'data/runRanges/',runRangesFile='',commonCut='Et_25',outDirMC='',outDirData='',invMass = '',selection='',regionsFile=''):
 
-    
+def makeTable(runRangesDir = 'data/runRanges/',runRangesFile='',commonCut='Et_25',outDirMC='',outDirData='',invMass = '',selection='',regionsFile='',extraOptions=''):
+
     command = ''
     command += './script/makeTable.sh'
     command += ' --regionsFile ' + regionsFile
@@ -186,6 +194,8 @@ def makeTable(runRangesDir = 'data/runRanges/',runRangesFile='',commonCut='Et_25
     command += ' --commonCut ' + commonCut
     command += ' --outDirFitResMC ' + outDirMC + '/fitres'
     command += ' --outDirFitResData ' + outDirData + '/fitres'
+    if extraOptions != '':
+        command += ' ' + extraOptions
     command += ' > ' + outDirData + '/table/' + 'monitoring_stability-'+invMass+'-'+selection+'.tex'
 
     print command
@@ -195,6 +205,7 @@ def makeTable(runRangesDir = 'data/runRanges/',runRangesFile='',commonCut='Et_25
     popen(command)
 
     return 'monitoring_stability-'+invMass+'-'+selection+'.tex'
+
 
 def fitresFileNamesFromScriptName(scriptName = '',commonCut = 'Et_25',regionsFile='data/regions/stability.dat'):
 
@@ -213,6 +224,7 @@ def fitresFileNamesFromScriptName(scriptName = '',commonCut = 'Et_25',regionsFil
 
     return fileNames
 
+
 def getRegions(regionsFile='data/regions/stability.dat'):
     
     regions = []
@@ -222,6 +234,7 @@ def getRegions(regionsFile='data/regions/stability.dat'):
                 regions.append(line)
     return regions
   
+
 def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=False,dryRun=True,regionsFile=''):
 
     assert (len(jobNames) > 0 and len(splitScripts) > 0), 'Both job names array and scripts array must not be empty'
@@ -240,7 +253,8 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
         
         info = ''
         for line in bjobs.split('\n'):
-            if 'Split'+jobName.split('Split')[-1] in line:
+            if len(line.split()) < 7:continue
+            if jobName == line.split()[6]:
                 info = line
 
         if verbose : print jobName+' ',
@@ -249,20 +263,23 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
         active = len(attributes) > 1 and (attributes[2] == 'RUN' or attributes[2] == 'PEND')
         if verbose:
             if active:
-                print 'Job is active     ',
+                print 'Job is active       |',
             else:
-                print 'Job is EXIT or DONE',
+                print 'Job is EXIT or DONE |',
 
         fileNames = fitresFileNamesFromScriptName(splitScript,regionsFile=regionsFile)
         fileStatuses = []
+        progress = ''
         for fileName in fileNames:
             fileExists = os.path.isfile(outDirData+'/fitres/'+fileName)
             fileStatuses.append(fileExists)
             if verbose:
                 if fileExists:
-                    print '1',
+                    progress += '-'
                 else:
-                    print '0',
+                    progress += ' '
+        if verbose:
+            print progress,'|',
         
         if active:
             if verbose : print attributes[-1]
@@ -283,7 +300,7 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
         print 'The following are to be resubmitted:'
         for name,script in zip(resubNames,resub):
             print name,' ',script
-            submitSplitRunScripts(jobNames= resubNames,splitScripts=resub,queue='cmscaf1nh',dryRun=dryRun)
+        submitSplitRunScripts(jobNames= resubNames,splitScripts=resub,queue='cmscaf1nh',dryRun=dryRun)
     else:
         print "No resubmissions needed :)"
 
@@ -292,55 +309,85 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
     else:
         return False
 
+def createValidationScript(splitFiles = [],configPath='data/validation/',
+                           configFile = '',invMass = 'invMass_SC_corr',baseDir='',
+                           updateOnly = '--updateOnly', outDirMC = '', outDirData = '',commonCut='Et_25',
+                           regionsFile = 'data/regions/validation.dat'):
+
+    #Write the script
+    scriptContent = ''
+    scriptContent += 'cd ' + os.getcwd().split('Calibration')[0] + '\n'
+    scriptContent += 'eval $(scram runtime -sh)\n'
+    scriptContent += 'cd Calibration/ZFitter/\n'
+    scriptContent += '\n'
+
+    #stability_split.sh part...
+    scriptContent += './script/validation_split.sh'
+    scriptContent += ' -f '+configPath+configFile
+    scriptContent += ' --runRangesFile '+file
+    scriptContent += ' --invMass_var '+invMass
+    scriptContent += ' --baseDir '+baseDir
+    scriptContent += ' --stability'
+    logname = scriptName.split('/')[-1].replace('.sh','.log')
+    scriptContent += ' > '+outDirData+'/log/'+logname
+    scriptContent += '\n'
+
+    #Write to the script file...
+    splitFile = open(scriptName,'w')
+    splitFile.write(scriptContent)
+    splitFile.close()
 
 
 
 
 
+
+queue = 'cmscaf1nh'
 
 regionsFile='data/regions/stability.dat'
+configFile = 'check-weights-ICHEP-2016.dat'
 
-runRangesFile = '22-06-2016-GoldJson_interval_100000.dat'
-runRangesFile_Alt = '03to22-06-16-GoldJson_interval_100000.dat'
-configFile = '22-06-2016-GoldJson.dat'
-configFile_Alt = '03to22-06-16-GoldJson.dat'
+dryRun = True
+monitoringMode = False
+
+#invMasses = ['invMass_fulle5x5','invMass_e5x5']
+invMasses = [' invMass_SC_must_regrCorr_ele']
+#invMasses = ['invMass_SC_pho_regrCorr']
+#invMasses = ['invMass_fulle5x5']
+#invMasses = ['invMass_e5x5']
+
+runRangesFile = configFile.split('.')[0]+'_interval_100000.dat'
 selection = 'loose'
-baseDir = configFile_Alt.split('.')[0]+'-Batch/'
-
-dryRun = False
-monitoringMode = True
-
-invMass = 'invMass_SC_corr'
-
-#invMasses = ['invMass_fulle5x5','invMass_e5x5','invMass_SC_pho_regrCorr','invMass_SC_corr']
-#invMasses = ['invMass_SC_corr']
-invMasses = ['invMass_SC_pho_regrCorr']
+baseDir = configFile.split('.')[0]+'-Batch/'
 
 for invMass in invMasses:
 
     #Making the split runrange files in tmp
-    splitFiles = createSplitRunRangeFiles(runRangesFile=runRangesFile_Alt)
+    splitFiles = createSplitRunRangeFiles(runRangesFile=runRangesFile)
 
     #Creating the output directories
-    outDirData,outDirMC = createOutputDirectories(baseDir=baseDir,configFile=configFile_Alt,
+    outDirData,outDirMC = createOutputDirectories(baseDir=baseDir,configFile=configFile,
                                 selection=selection,invMass=invMass)
 
     #Creating the job scripts
-    splitScripts = createSplitRunScripts(splitFiles=splitFiles,configFile=configFile_Alt,
+    splitScripts = createSplitRunScripts(splitFiles=splitFiles,configFile=configFile,
                                         baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
-                                        outDirData=outDirData)
+                                        outDirData=outDirData,regionsFile=regionsFile,
+                                        extraOptions='')
                                         
     #Submitting the jobs
     if not monitoringMode:
-        jobNames = submitSplitRunScripts(splitScripts=splitScripts,queue='cmscaf1nh',dryRun=False)
+        jobNames = submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=dryRun)
     else:
-        jobNames = submitSplitRunScripts(splitScripts=splitScripts,queue='cmscaf1nh',dryRun=True)
+        jobNames = submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=True)
 
     #Monitor the jobs and submit when they fail
     checkPeriod = 300.0
     starttime = time.time()
-    print 'Initial jobs check at ', strftime("%H:%M:%S", gmtime())
-    complete = monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+    if monitoringMode:
+        complete = monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+    else:
+        complete = False
     while not complete:
         time.sleep(checkPeriod - ((time.time() - starttime) % checkPeriod))
         print 'Checking jobs at ', strftime("%H:%M:%S", gmtime())
@@ -349,7 +396,7 @@ for invMass in invMasses:
     #Make the stability .tex table
     if complete:
         print "Jobs are all done! Time to make the table..."
-        tableName = makeTable(runRangesFile=runRangesFile_Alt,outDirMC=outDirMC,outDirData=outDirData,invMass=invMass,selection=selection,regionsFile=regionsFile)
+        tableName = makeTable(runRangesFile=runRangesFile,outDirMC=outDirMC,outDirData=outDirData,invMass=invMass,selection=selection,regionsFile=regionsFile,extraOptions='')
         
 
 

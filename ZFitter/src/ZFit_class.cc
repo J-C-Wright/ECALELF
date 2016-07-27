@@ -273,7 +273,6 @@ RooDataSet *ZFit_class::TreeToRooDataSet(TChain *chain, TEntryList *entryList){
     invMass_*=sqrt(corrEle_[0] * corrEle_[1] *(smearEle_[0]) * (smearEle_[1]));
     invMass.setVal(invMass_ );
     weight.setVal(weight_*pileupWeight_ * r9weight_[0]*r9weight_[1]); 
-    std::cout<<"DEBUGGONE 1 weight is"<<weight_*pileupWeight_ * r9weight_[0]*r9weight_[1]<<std::endl;
     if(invMass_ > invMass.getMin() && invMass_ < invMass.getMax()) data->add(Vars);
   }
   data->Print();
@@ -347,7 +346,6 @@ RooDataSet *ZFit_class::TreeToRooDataSet(TChain *chain, TCut cut){
     invMass_*=sqrt(corrEle_[0] * corrEle_[1] *(smearEle_[0]) * (smearEle_[1]));
     invMass.setVal(invMass_ );
     weight.setVal(weight_*pileupWeight_ * r9weight_[0]*r9weight_[1]); 
-    std::cout<<"DEBUGGONE weight is"<<weight_*pileupWeight_ * r9weight_[0]*r9weight_[1]<<std::endl;
     if(invMass_ > invMass.getMin() && invMass_ < invMass.getMax()) data->add(Vars);
   }
   delete selector;
@@ -1192,6 +1190,9 @@ TString	ZFit_class::GetEnergyVarName(TString invMass_name){
   else if(invMass_var=="invMass") energyBranchName = "energyEle";
   else if(invMass_var=="invMass_SC") energyBranchName = "energySCEle";
   else if(invMass_var=="invMass_SC_corr") energyBranchName = "energySCEle_corr";
+  else if(invMass_var=="invMass_fulle5x5") energyBranchName = "e_full5x5SCEle";
+  else if(invMass_var=="invMass_e5x5") energyBranchName = "e5x5SCEle";
+  else if(invMass_var=="invMass_SC_must_regrCorr_ele") energyBranchName = "energySCEle_must_regrCorr_ele";
   else if(invMass_var=="invMass_SC_regrCorrSemiParV4_ele") energyBranchName = "energySCEle_regrCorrSemiParV4_ele";
   else if(invMass_var=="invMass_SC_regrCorrSemiParV4_pho") energyBranchName = "energySCEle_regrCorrSemiParV4_pho";
   else if(invMass_var=="invMass_SC_regrCorrSemiParV5_ele") energyBranchName = "energySCEle_regrCorrSemiParV5_ele";
