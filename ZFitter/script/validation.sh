@@ -10,6 +10,7 @@ runRangesFile=data/runRanges/monitoring.dat
 baseDir=test
 xVar=runNumber
 updateOnly="--updateOnly"
+
 GITTAG="lcorpe:topic-quickrereco-lcsh-fix-rebase" #should eventually get this automatically from file or option
 GLOBALTAG="74X-lcdataRun2-lcPrompt-lcv0" #should eventually get this automatically from file or option
 

@@ -753,6 +753,7 @@ std::set<TString> ElectronCategory_class::GetCutSet(TString region){
       else if(string1=="medium50nsRun2") string1="3072";
       else if(string1=="tight50nsRun2") string1="7168";
       */
+      string1 = "0x0080";
       TCut cutEle1("(eleID[0] & "+string1+")=="+string1);
       TCut cutEle2("(eleID[1] & "+string1+")=="+string1);
 

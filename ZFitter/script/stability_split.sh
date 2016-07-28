@@ -69,6 +69,7 @@ do
 	--regionsFile) regionsFile=$2; echo "[OPTION] regionsFile = ${regionsFile}"; shift;;
 	--baseDir) baseDir=$2; echo "[OPTION] baseDir = $baseDir"; shift;;
 	--rereco) rereco=$2; echo "[OPTION] rereco = $rereco"; shift;;
+    --selection) selection=$2;;
 	--validation) VALIDATION=y;;
 	--stability)  STABILITY=y;;
 	--cruijff)  CRUIJFF="--signal_type_value=1";;
@@ -112,6 +113,8 @@ case ${selection} in
 	;;
     loose)
 	;;
+    loose25nsRun2)
+    ;;
     *)
 			exit 1
         ;;

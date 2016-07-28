@@ -179,9 +179,15 @@ TChain *ZFit_class::ImportTree(TChain *chain, TString commonCut, std::set<TStrin
   TString evListName="evList_";
   evListName+=chain->GetTitle();
   chain->Draw(">>"+evListName,commonCut,"entrylist");
+//  chain->Print();
+  std::cout << "[jack] " << ">>"+evListName << " " << commonCut << std::endl;
   TEntryList *elist = (TEntryList*)gDirectory->Get(evListName);
  
+  std::cout << elist << std::endl;
+  std::cout << "----" << std::endl;
   std::cout << "[INFO] Selected events: " << chain->GetTitle() << "\t" <<  elist->GetN() << std::endl;
+  std::cout << "[INFO] selected ::"  << chain->GetEntries() << std::endl;
+  std::cout << "----" << std::endl;
   chain->SetEntryList(elist);
   
   //delete elist; // do not delete
