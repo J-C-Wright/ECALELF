@@ -10,7 +10,6 @@ runRangesFile=data/runRanges/monitoring.dat
 regionsFile=data/regions/stability.dat
 baseDir=test
 xVar=runNumber
-#updateOnly="--updateOnly"
 updateOnly="--updateOnly"
 GITTAG="lcorpe:topic-quickrereco-lcsh-fix-rebase" #should eventually get this automatically from file or option
 GLOBALTAG="74X-lcdataRun2-lcPrompt-lcv0" #should eventually get this automatically from file or option
@@ -69,6 +68,7 @@ do
 	--regionsFile) regionsFile=$2; echo "[OPTION] regionsFile = ${regionsFile}"; shift;;
 	--baseDir) baseDir=$2; echo "[OPTION] baseDir = $baseDir"; shift;;
 	--rereco) rereco=$2; echo "[OPTION] rereco = $rereco"; shift;;
+    --selection) selection=$2;;
 	--validation) VALIDATION=y;;
 	--stability)  STABILITY=y;;
 	--cruijff)  CRUIJFF="--signal_type_value=1";;
@@ -112,6 +112,8 @@ case ${selection} in
 	;;
     loose)
 	;;
+    loose25nsRun2)
+    ;;
     *)
 			exit 1
         ;;
@@ -177,7 +179,7 @@ echo "$outDirMC" > $outDirData/whichMC.txt
 ##################################################
 
 ./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionsFile}  --runRangesFile ${runRangesFile} \
-    $updateOnly --invMass_var ${invMass_var} \
+    $updateOnly --invMass_var ${invMass_var} --selection ${selection} \
     --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
     --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img --commonCut=${commonCut} $CRUIJFF || exit 1
 

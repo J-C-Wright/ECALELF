@@ -38,7 +38,7 @@ def createSplitRunRangeFiles(path = 'data/runRanges/',runRangesFile = ''):
 def createSplitRunScripts(splitFiles = [],configPath='data/validation/',
                           configFile = '',invMass = 'invMass_SC_corr',baseDir='',
                           outDirMC = '', outDirData = '',commonCut='Et_25',
-                          regionsFile = 'data/regions/stability.dat',extraOptions=''):
+                          regionsFile = 'data/regions/stability.dat',extraOptions='',selection=''):
 
     assert (configFile != ''),'validation file name is empty'
     assert (len(splitFiles) != 0),'SplitFiles is empty'
@@ -67,6 +67,7 @@ def createSplitRunScripts(splitFiles = [],configPath='data/validation/',
         scriptContent += ' --regionsFile '+regionsFile
         scriptContent += ' --invMass_var '+invMass
         scriptContent += ' --baseDir '+baseDir
+        scriptContent += ' --selection '+selection
         scriptContent += ' --stability'
         if extraOptions != '':
             scriptContent += ' ' + extraOptions
@@ -172,10 +173,8 @@ def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=Fal
 
         #Submit command
         if len(jobNames) == 0:
-            print 'Submitting Split'+str(i)
             jobs.append('Split'+str(i))
         else:
-            print 'Submitting ',jobNames[i]
             jobs.append(jobNames[i])
 
         if not dryRun:
@@ -343,17 +342,22 @@ def createValidationScript(splitFiles = [],configPath='data/validation/',
 
 
 queue = 'cmscaf1nh'
-
-regionsFile='data/regions/stability.dat'
-configFile = 'ICHEP.dat'
+#regionsFile='data/regions/stability.dat'
+regionsFile='data/regions/systematics_2.dat'
+configFile = 'check-pulse-ICHEP-2016.dat'
+#configFile = 'ICHEP.dat'
+selection = 'loose25nsRun2'
+#invMasses = ['invMass_fulle5x5','invMass_e5x5']
+invMasses = ['invMass_SC_must_regrCorr_ele']
+#invMasses = ['invMass_SC_pho_regrCorr']
+#invMasses = ['invMass_fulle5x5']
+#invMasses = ['invMass_e5x5']
+#invMasses = ['invMass_SC_corr']
 
 dryRun = False
 monitoringMode = False
 
-invMasses = ['invMass_SC_corr']
-
 runRangesFile = configFile.split('.')[0]+'_interval_100000.dat'
-selection = 'loose'
 baseDir = configFile.split('.')[0]+'-Batch/'
 
 for invMass in invMasses:
@@ -369,7 +373,7 @@ for invMass in invMasses:
     splitScripts = createSplitRunScripts(splitFiles=splitFiles,configFile=configFile,
                                         baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
                                         outDirData=outDirData,regionsFile=regionsFile,
-                                        extraOptions='')
+                                        extraOptions='',selection=selection)
                                         
     #Submitting the jobs
     if not monitoringMode:
