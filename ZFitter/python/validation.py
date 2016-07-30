@@ -343,7 +343,7 @@ def createValidationScript(splitFiles = [],configPath='data/validation/',
 
 queue = 'cmscaf1nh'
 #regionsFile='data/regions/stability.dat'
-regionsFile='data/regions/systematics_2.dat'
+regionsFile='data/regions/systematics_LC.dat'
 configFile = 'check-pulse-ICHEP-2016.dat'
 #configFile = 'ICHEP.dat'
 selection = 'loose25nsRun2'
@@ -355,7 +355,7 @@ invMasses = ['invMass_SC_must_regrCorr_ele']
 #invMasses = ['invMass_SC_corr']
 
 dryRun = False
-monitoringMode = False
+monitoringMode = True
 
 runRangesFile = configFile.split('.')[0]+'_interval_100000.dat'
 baseDir = configFile.split('.')[0]+'-Batch/'
