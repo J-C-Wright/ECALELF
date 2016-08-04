@@ -30,6 +30,8 @@ usage(){
     echo " --validation: run the validation only, not the history and etaScale fits"
     echo " --stability:  run the stability fits only"
     echo " --etaScale:   run the fits in |eta| only"
+    echo " --npvScale:   run the fits in npv only"
+    echo " --lcScale:   run the fits in lc only"
     echo " --R9Ele:      run the fits in bin of R9 only"
     echo " --onlyTable:  do not run the fits, recreate only the tables and the stability plots"
     echo " --systematics all/pu      "
@@ -54,7 +56,7 @@ desc(){
 
 
 # options may be followed by one colon to indicate they have a required argument
-if ! options=$(getopt -u -o hf: -l help,runRangesFile:,selection:,invMass_var:,puName:,baseDir:,rereco:,validation,stability,etaScale,systematics:,slides,onlyTable,test,commonCut:,period:,cruijff,refreg,R9Ele -- "$@")
+if ! options=$(getopt -u -o hf: -l help,runRangesFile:,selection:,invMass_var:,puName:,baseDir:,rereco:,validation,stability,etaScale,npvScale,lcScale,systematics:,slides,onlyTable,test,commonCut:,period:,cruijff,refreg,R9Ele -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     exit 1
@@ -76,6 +78,8 @@ do
 	--validation)  VALIDATION=y;;
 	--stability)   STABILITY=y;;
 	--etaScale)    ETA=y;;
+	--npvScale)    NPV=y;;
+    --lcScale)     LC=y;;
 	--R9Ele)       R9ELE=y;;
 	--refreg)      REFREG=y;;
 	--systematics) SYSTEMATICS=$2; shift;;
@@ -318,7 +322,8 @@ fi
 
 if [ -n "$ETA" ];then
     regionFile=data/regions/absEta.dat
-    xVar=absEta
+
+    xVar=LC
     if [ -n "$STEP4" ];then
 	tableFile=${outDirTable}/step2absEta-${invMass_var}-${selection}-${commonCut}.tex
     else
@@ -350,12 +355,53 @@ if [ -n "$ETA" ];then
 	mkdir -p ${outDirData}/img/stability/$xVar/$PERIOD
     fi
 
-    ./script/stability.sh -t ${tableFile} \
+   ./script/stability.sh -t ${tableFile} \
 	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y peak $xMin $xMax || exit 1
     ./script/stability.sh -t ${tableFile} \
 	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y scaledWidth $xMin $xMax || exit 1
     
 fi    
+
+
+
+if [ -n "$NPV" ];then
+
+    regionFile=data/regions/nPV.dat
+  
+	tableFile=${outDirTable}/nPV-${invMass_var}-${selection}-${commonCut}.tex
+   
+    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
+    ${extraOptions} \
+    $updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
+    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
+    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/nPV.log || exit 1
+    
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
+	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
+	${tableCruijffOption} >  ${tableFile} || exit 1
+    
+fi    
+
+if [ -n "$LC" ];then
+
+    regionFile=data/regions/LC.dat
+  
+	tableFile=${outDirTable}/LC-${invMass_var}-${selection}-${commonCut}.tex
+   
+    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
+    ${extraOptions} \
+    $updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
+    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
+    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/LC.log || exit 1
+    
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
+	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
+	${tableCruijffOption} >  ${tableFile} || exit 1
+    
+fi    
+
+
+
 
 if [ -n "$R9ELE" ];then
     regionFile=data/regions/R9Ele.dat
