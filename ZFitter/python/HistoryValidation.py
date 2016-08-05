@@ -8,75 +8,7 @@ from os import popen
 import sched,time
 from time import gmtime,strftime
 from optparse import OptionParser
-from BatchValidation import stability as stab
-
-
-if __name__ == '__main__':
-
-    (opt, args) =  get_options()
-
-    queue = opt.queue
-    regionsFile=opt.regionsFile
-    configFile = opt.configFile
-    selection = opt.selection
-    invMass = opt.invMass
-    dryRun = opt.dryRun
-    monitoringMode = opt.monitoringMode
-    baseDir = configFile.split('.')[0]+'-Batch/'
-    if opt.runRangesFile == '':
-        runRangesFile = configFile.split('.')[0]+'_interval_100000.dat'
-        #check it exists
-        #if not init calibraition stuff
-    else:
-        runRangesFile = opt.runRangesFile
-
-    print "Run details:"
-    print "Queue: ",queue
-    print "Regions file: ",regionsFile
-    print "Config file: ",configFile
-    print "Selection: ",selection
-    print "Inv. mass: ",invMass
-    print "Dry run: ", dryRun
-    print "Monitoring mode: ",monitoringMode
-    print "Runranges file: ",runRangesFile
-    print "Base dir: ",baseDir
-
-    #Making the split runrange files in tmp
-    splitFiles = stab.createSplitRunRangeFiles(runRangesFile=runRangesFile)
-
-    #Creating the output directories
-    outDirData,outDirMC = stab.createOutputDirectories(baseDir=baseDir,configFile=configFile,
-                                selection=selection,invMass=invMass)
-
-    #Creating the job scripts
-    splitScripts = stab.createSplitRunScripts(splitFiles=splitFiles,configFile=configFile,
-                                        baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
-                                        outDirData=outDirData,regionsFile=regionsFile,
-                                        extraOptions='',selection=selection)
-                                        
-    #Submitting the jobs
-    if not monitoringMode:
-        jobNames = stab.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=dryRun)
-    else:
-        jobNames = stab.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=True)
-
-    #Monitor the jobs and resubmit when they fail
-    checkPeriod = 300.0
-    starttime = time.time()
-    if monitoringMode:
-        complete = stab.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
-    else:
-        complete = False
-    while not complete:
-        time.sleep(checkPeriod - ((time.time() - starttime) % checkPeriod))
-        print 'Checking jobs at ', strftime("%H:%M:%S", gmtime())
-        complete = stab.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
-
-    #Make the stability .tex table
-    if complete:
-        print "Jobs are all done! Time to make the table..."
-        tableName = stab.makeTable(runRangesFile=runRangesFile,outDirMC=outDirMC,outDirData=outDirData,
-                                   invMass=invMass,selection=selection,regionsFile=regionsFile,extraOptions='')
+from BatchValidation import HistoryStability as hs
 
 def get_options():
 
@@ -130,4 +62,71 @@ def get_options():
 
     return parser.parse_args()
 
+
+if __name__ == '__main__':
+
+    (opt, args) =  get_options()
+
+    queue = opt.queue
+    regionsFile=opt.regionsFile
+    configFile = opt.configFile
+    selection = opt.selection
+    invMass = opt.invMass
+    dryRun = opt.dryRun
+    monitoringMode = opt.monitoringMode
+    baseDir = configFile.split('.')[0]+'-Batch/'
+    if opt.runRangesFile == '':
+        runRangesFile = configFile.split('.')[0]+'_interval_100000.dat'
+        #check it exists
+        #if not init calibraition stuff
+    else:
+        runRangesFile = opt.runRangesFile
+
+    print "Run details:"
+    print "Queue: ",queue
+    print "Regions file: ",regionsFile
+    print "Config file: ",configFile
+    print "Selection: ",selection
+    print "Inv. mass: ",invMass
+    print "Dry run: ", dryRun
+    print "Monitoring mode: ",monitoringMode
+    print "Runranges file: ",runRangesFile
+    print "Base dir: ",baseDir
+
+    #Making the split runrange files in tmp
+    splitFiles = hs.createSplitRunRangeFiles(runRangesFile=runRangesFile)
+
+    #Creating the output directories
+    outDirData,outDirMC = hs.createOutputDirectories(baseDir=baseDir,configFile=configFile,
+                                selection=selection,invMass=invMass)
+
+    #Creating the job scripts
+    splitScripts = hs.createSplitRunScripts(splitFiles=splitFiles,configFile=configFile,
+                                        baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
+                                        outDirData=outDirData,regionsFile=regionsFile,
+                                        extraOptions='',selection=selection)
+                                        
+    #Submitting the jobs
+    if not monitoringMode:
+        jobNames = hs.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=dryRun)
+    else:
+        jobNames = hs.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=True)
+
+    #Monitor the jobs and resubmit when they fail
+    checkPeriod = 300.0
+    starttime = time.time()
+    if monitoringMode:
+        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+    else:
+        complete = False
+    while not complete:
+        time.sleep(checkPeriod - ((time.time() - starttime) % checkPeriod))
+        print 'Checking jobs at ', strftime("%H:%M:%S", gmtime())
+        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+
+    #Make the stability .tex table
+    if complete:
+        print "Jobs are all done! Time to make the table..."
+        tableName = hs.makeTable(runRangesFile=runRangesFile,outDirMC=outDirMC,outDirData=outDirData,
+                                   invMass=invMass,selection=selection,regionsFile=regionsFile,extraOptions='')
 
