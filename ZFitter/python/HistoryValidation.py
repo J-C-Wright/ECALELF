@@ -23,20 +23,21 @@ def get_options():
                        dest='configFile', default='',
                        help="""
                        Input configuration file that contains the input n-tuples, and PU info.
+                       This will look inside data/validation/ files should be placed there.
                        """,
                        metavar="FILE")
     parser.add_option( "-r", "--runRange",
                        dest="runRangesFile", default='',
                        help="""
                        Input configuration file that contains the run ranges.
-                       This file is produced by the Zfitter (please check the documentation)
-                       and can be found in data/runRange/ directory
+                       This will look inside data/runRanges/ files should be placed there.
                        """,
                        metavar="FILE")
     parser.add_option( "-R", "--regionsFile",
                        dest="regionsFile", default='stability.dat',
                        help="""
                        Input regions file that contains the regions to run over
+                       This will look inside data/regions/ files should be placed there.
                        """,
                        metavar="FILE")
     parser.add_option( "-i", "--invMass",
