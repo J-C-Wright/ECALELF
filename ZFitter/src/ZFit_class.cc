@@ -265,6 +265,7 @@ RooDataSet *ZFit_class::TreeToRooDataSet(TChain *chain, TEntryList *entryList)
 	//chain->LoadTree(0);
 	//chain->GetEntry(0);
 	std::cout << "___ ENTRIES: " << entries << std::endl;
+    std::cout << "The one with a TEntryList input" << std::endl;
 	for(Long64_t jentry = 0; jentry < entries; jentry++) {
 		//Int_t treenum=0;
 		//Long64_t treeEntry = entryList->GetEntryAndTree(jentry,treenum);
@@ -343,6 +344,7 @@ RooDataSet *ZFit_class::TreeToRooDataSet(TChain *chain, TCut cut)
 	TTreeFormula *selector = new TTreeFormula("selector", cut, chain);
 
 	std::cout << "___ ENTRIES: " << entries << std::endl;
+    std::cout << "The one with a TCut input" << std::endl;
 	for(Long64_t jentry = 0; jentry < entries; jentry++) {
 		Long64_t entryNumber = chain->GetEntryNumber(jentry);
 		chain->GetEntry(entryNumber);
@@ -350,8 +352,10 @@ RooDataSet *ZFit_class::TreeToRooDataSet(TChain *chain, TCut cut)
 			treenumber = chain->GetTreeNumber();
 			selector->UpdateFormulaLeaves();
 		}
-		if(selector->EvalInstance() == false) continue;
-
+		if(selector->EvalInstance() == false) {
+            std::cout << "selector->EvalInstance() == false" << std::endl;
+            continue;
+        }
 		if(jentry < 1)  std::cout << "[DEBUG] PU: " << pileupWeight_
 			                          << std::endl;
 		if(jentry < 1)  std::cout << "[DEBUG] corrEle[0]: " << corrEle_[0] << std::endl;

@@ -281,7 +281,7 @@ def fitresFileNamesFromScriptName(scriptName = '',commonCut = 'Et_25',regionsPat
     
     runMin = scriptName.split('/')[-1].split('_')[0]
     runMax = scriptName.split('/')[-1].split('_')[1]
-    regions = getRegions(regionsFile)
+    regions = getRegions(regionsFile=regionsFile)
     types = ['.tex','.root','.txt']
 
     fileNames = []

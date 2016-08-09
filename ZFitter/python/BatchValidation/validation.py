@@ -3,10 +3,10 @@ import subprocess
 import stat
 from os import popen
 
-def createValidationScript(splitFiles = [],configPath='data/validation/',
+def createValidationScript(configPath='data/validation/',
                            configFile = '',invMass = 'invMass_SC_corr',baseDir='',
                            updateOnly = '--updateOnly', outDirMC = '', outDirData = '',commonCut='Et_25',
-                           regionsFile = 'data/regions/validation.dat'):
+                           regionsPath = 'data/regions/',regionsFile = 'validation.dat'):
 
     #Write the script
     scriptContent = ''
@@ -15,7 +15,7 @@ def createValidationScript(splitFiles = [],configPath='data/validation/',
     scriptContent += 'cd Calibration/ZFitter/\n'
     scriptContent += '\n'
 
-    #stability_split.sh part...
+    #validation_split.sh part...
     scriptContent += './script/validation_split.sh'
     scriptContent += ' -f '+configPath+configFile
     scriptContent += ' --runRangesFile '+file
@@ -25,8 +25,8 @@ def createValidationScript(splitFiles = [],configPath='data/validation/',
     scriptContent += '\n'
 
     #Write to the script file...
-    splitFile = open(scriptName,'w')
-    splitFile.write(scriptContent)
-    splitFile.close()
+    validationFile = open(scriptName,'w')
+    validationFile.write(scriptContent)
+    validationFile.close()
 
 
