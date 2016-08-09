@@ -1,0 +1,1 @@
+python python/HistoryValidation.py -q cmscaf1nh -c check-pulse-ICHEP-2016.dat -r check-pulse-ICHEP-2016_interval_100000.dat -i invMass_SC_must_regrCorr_ele -s loose25nsRun2 --dryRun
