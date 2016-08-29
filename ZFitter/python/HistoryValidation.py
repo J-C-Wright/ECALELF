@@ -4,6 +4,7 @@
 import os
 import subprocess
 import stat
+import sys
 from os import popen
 import sched,time
 from time import gmtime,strftime
@@ -106,6 +107,8 @@ if __name__ == '__main__':
                                         baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
                                         outDirData=outDirData,regionsFile=regionsFile,
                                         extraOptions='',selection=selection)
+    if dryRun:
+        sys.exit(0)
                                         
     #Submitting the jobs
     if not monitoringMode:
