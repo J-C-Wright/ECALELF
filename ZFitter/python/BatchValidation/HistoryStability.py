@@ -152,6 +152,8 @@ def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=Fal
     cwd = os.getcwd()+'/'
     jobs = []
 
+    popen('rm core.*')
+
     for i,script in enumerate(splitScripts):
 
         #chmod
@@ -301,3 +303,25 @@ def getRegions(regionsPath='data/regions/',regionsFile='stability.dat'):
                 regions.append(line)
     return regions
  
+def makeMonitoringSummaryTable(path='data/validation/',filename=None,invMass=None,baseDir=None,selection=None):
+
+    command = './script/monitoring_validation.sh'
+    command += ' -f ' + path + filename
+    command += ' --invMass_var ' + invMass
+    command += ' --baseDir ' + baseDir
+    command += ' --selection ' + selection
+    command += ' --validation'
+
+    print command
+    
+    os.chmod( os.getcwd()+'/script/makeTable.sh',0744)
+
+    popen(command)
+
+
+
+
+
+
+
+

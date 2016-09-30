@@ -9,7 +9,7 @@ from os import popen
 import sched,time
 from time import gmtime,strftime
 from optparse import OptionParser
-from BatchValidation import HistoryStability as hs
+from BatchValidation import VariableStability as vs
 
 def get_options():
 
@@ -53,7 +53,6 @@ def get_options():
                        """)
     parser.add_option( "-d","--dryRun",
                        action="store_true",dest="dryRun",
-                       default=False,
                        help="""
                        Activates dry run mode and does not submit anything to the batch
                        """)
@@ -62,13 +61,6 @@ def get_options():
                        help="""
                        Activates monitoring mode. Does not create and submit jobs, just looks at status of running jobs.
                        """)
-    parser.add_option( "-f","--cruijff",
-                       action="store_true",dest="cruijff",
-                       default=False,
-                       help="""
-                       Fits peak with cruijff rather than convolution of CB and BW
-                       """)
-
 
     return parser.parse_args()
 
@@ -92,10 +84,6 @@ if __name__ == '__main__':
     else:
         runRangesFile = opt.runRangesFile
 
-    extraOptions = ''
-    if opt.cruijff:
-        extraOptions += ' --cruijff'
-
     print "Run details:"
     print "Queue: ",queue
     print "Regions file: ",regionsFile
@@ -108,41 +96,43 @@ if __name__ == '__main__':
     print "Base dir: ",baseDir
 
     #Making the split runrange files in tmp
-    splitFiles = hs.createSplitRunRangeFiles(runRangesFile=runRangesFile)
+    splitFiles = vs.createSplitRegionFiles(regionsFile=regionsFile)
 
-    #Creating the output directories
-    outDirData,outDirMC = hs.createOutputDirectories(baseDir=baseDir,configFile=configFile,
+    outDirData,outDirMC = vs.createOutputDirectories(baseDir=baseDir,configFile=configFile,
                                 selection=selection,invMass=invMass)
 
-    #Creating the job scripts
-    splitScripts = hs.createSplitRunScripts(splitFiles=splitFiles,configFile=configFile,
-                                        baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
-                                        outDirData=outDirData,regionsFile=regionsFile,
-                                        extraOptions=extraOptions,selection=selection)
-    if dryRun and not monitoringMode:
+    splitScripts = vs.createSplitRegionScripts(splitFiles=splitFiles,configFile=configFile,
+                                            baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
+                                            outDirData=outDirData,
+                                            extraOptions='',selection=selection)
+
+    if dryRun:
         sys.exit(0)
-                                        
-    #Submitting the jobs
+
     if not monitoringMode:
-        jobNames = hs.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=dryRun)
+        jobNames = vs.submitSplitRegionScripts(splitScripts=splitScripts,queue=queue,dryRun=dryRun)
     else:
-        jobNames = hs.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=True)
+        jobNames = vs.submitSplitRegionScripts(splitScripts=splitScripts,queue=queue,dryRun=True)
 
     #Monitor the jobs and resubmit when they fail
     checkPeriod = 300.0
     starttime = time.time()
     if monitoringMode:
-        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+        complete = vs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
     else:
         complete = False
     while not complete:
         time.sleep(checkPeriod - ((time.time() - starttime) % checkPeriod))
         print 'Checking jobs at ', strftime("%H:%M:%S", gmtime())
-        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+        complete = vs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
 
-    #Make the stability .tex table
-    if complete:
-        print "Jobs are all done! Time to make the stability table and summary table..."
-        tableName = hs.makeTable(runRangesFile=runRangesFile,outDirMC=outDirMC,outDirData=outDirData,
-                                 invMass=invMass,selection=selection,regionsFile=regionsFile,extraOptions=extraOptions)
-        hs.makeMonitoringSummaryTable(filename=configFile,invMass=invMass,baseDir=baseDir,selection=selection)
+
+
+
+
+
+
+
+
+
+

@@ -6,6 +6,7 @@ std::string energyBranchNameFromInvMassName(std::string invMass_var)
 
 	std::string energyBranchName = "";
 	if(invMass_var == "invMass_SC_regrCorr_ele") energyBranchName = "energySCEle_regrCorr_ele";
+    else if(invMass_var =="invMass_fulle5x5") energyBranchName = "e_full5x5SCEle";
 	else if(invMass_var == "invMass_SC_regrCorr_pho") energyBranchName = "energySCEle_regrCorr_pho";
 	else if(invMass_var == "invMass_regrCorr_fra") energyBranchName = "energyEle_regrCorr_fra";
 	else if(invMass_var == "invMass_regrCorr_egamma") energyBranchName = "energyEle_regrCorr_egamma";

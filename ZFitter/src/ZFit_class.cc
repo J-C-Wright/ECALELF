@@ -341,19 +341,24 @@ RooDataSet *ZFit_class::TreeToRooDataSet(TChain *chain, TCut cut)
 	Long64_t entries = chain->GetEntryList()->GetN();
 	chain->LoadTree(chain->GetEntryNumber(0));
 	Long64_t treenumber = -1;
+
+
 	TTreeFormula *selector = new TTreeFormula("selector", cut, chain);
 
 	std::cout << "___ ENTRIES: " << entries << std::endl;
     std::cout << "The one with a TCut input" << std::endl;
+    std::cout << cut << std::endl;
+
 	for(Long64_t jentry = 0; jentry < entries; jentry++) {
 		Long64_t entryNumber = chain->GetEntryNumber(jentry);
 		chain->GetEntry(entryNumber);
 		if (chain->GetTreeNumber() != treenumber) {
 			treenumber = chain->GetTreeNumber();
+            std::cout << treenumber << std::endl;
 			selector->UpdateFormulaLeaves();
 		}
 		if(selector->EvalInstance() == false) {
-            std::cout << "selector->EvalInstance() == false" << std::endl;
+//            std::cout << "selector->EvalInstance() == false" << std::endl;
             continue;
         }
 		if(jentry < 1)  std::cout << "[DEBUG] PU: " << pileupWeight_
@@ -526,7 +531,10 @@ double ZFit_class::GetEffectiveSigma(RooAbsData *dataset, float quant = 0.68)
 	//	if(invMass_highBinning==NULL) invMass_highBinning = dataset->createHistogram(invMass.GetName(),invMass.getBins("plotRange"));
 	if(invMass_highBinning == NULL) invMass_highBinning = dataset->createHistogram(invMass.GetName(), 60000);
 
+    std::cout << "->" << invMass_highBinning->GetNbinsX() << std::endl;
 	TH1* h = invMass_highBinning;
+
+    std::cout << "-->" << h->GetNbinsX() << std::endl;
 
 	double TotEvents = h->Integral(1, h->GetNbinsX() - 1);
 	double LocEvents = 0.;
@@ -652,6 +660,7 @@ RooFitResult *ZFit_class::FitData(TString region, bool doPlot, RooFitResult *fit
 	if(_isDataUnbinned) numcpu = 1; //this is because in previous versions of ROOT, the unbinned fit did not support nCPU>1 (to be checked in newer versions)
 
 	//EFFECTIVE SIGMA
+    std::cout << "[Jack] FitData called" << std::endl;
 	sigmaeff_data = GetEffectiveSigma(data_red);
 	//overwriting values
 	sigmaeff_data_map[0.68] = GetEffectiveSigma(data_red);
@@ -1267,6 +1276,7 @@ TString	ZFit_class::GetEnergyVarName(TString invMass_name)
 	TString energyBranchName = "";
 	TString invMass_var = invMass_name;
 	if(invMass_var == "invMass_SC_regrCorr_ele") energyBranchName = "energySCEle_regrCorr_ele";
+    else if(invMass_var =="invMass_fulle5x5") energyBranchName = "e_full5x5SCEle";
 	else if(invMass_var == "invMass_SC_regrCorr_pho") energyBranchName = "energySCEle_regrCorr_pho";
 	else if(invMass_var == "invMass_regrCorr_fra") energyBranchName = "energyEle_regrCorr_fra";
 	else if(invMass_var == "invMass_regrCorr_egamma") energyBranchName = "energyEle_regrCorr_egamma";

@@ -177,7 +177,9 @@ if [ ! -e "${outDirData}/log" ];then mkdir ${outDirData}/log -p; fi
 echo "$outDirMC" > $outDirData/whichMC.txt
 
 ##################################################
-
+echo 'debug'
+echo $CRUIJFF
+echo 'debug'
 ./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionsFile}  --runRangesFile ${runRangesFile} \
     $updateOnly --invMass_var ${invMass_var} --selection ${selection} \
     --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \

@@ -3,27 +3,24 @@ import subprocess
 import stat
 from os import popen
 
-def createSplitRunRangeFiles(path = 'data/runRanges/',runRangesFile = ''):
+def createSplitRegionFiles(path = 'data/regions/',regionsFile = ''):
 
-    assert (runRangesFile != ''),'File name is empty'
+    assert (regionsFile != ''),'File name is empty'
 
-    splitDir = 'tmp/runRangeSplits/'+runRangesFile.split('_interval_')[0]+'/'
+    splitDir = 'tmp/regionSplits/'+regionsFile.split('.')[0]+'/'
 
     if not os.path.exists(splitDir):
         os.makedirs(splitDir)
 
-    print 'Writing split run range files to ',splitDir
+    print 'Writing split region files to ',splitDir
 
     splitNames = []
 
-    with open(path+runRangesFile) as f:
+    with open(path+regionsFile) as f:
         for line in f.read().split('\n'):
-            if line != '':
+            if line != '' and line[0] != '#':
 
-                runMin = line.split('\t')[0].split('-')[0]
-                runMax = line.split('\t')[0].split('-')[1]
-
-                splitName = runMin+'_'+runMax+'_split.dat'
+                splitName = line.replace('.','p')+'_split.dat'
 
                 splitFile = open(splitDir+splitName,'w')
                 splitFile.write(line)
@@ -33,16 +30,16 @@ def createSplitRunRangeFiles(path = 'data/runRanges/',runRangesFile = ''):
     f.close()
     return splitNames
 
-def createSplitRunScripts(splitFiles = [],configPath='data/validation/',
-                          configFile = '',invMass = 'invMass_SC_corr',baseDir='',
-                          outDirMC = '', outDirData = '',commonCut='Et_25',regionsPath='data/regions/',
-                          regionsFile = 'stability.dat',extraOptions='',selection=''):
+def createSplitRegionScripts( splitFiles = [],configPath='data/validation/',
+                              configFile = '',invMass = 'invMass_SC_corr',baseDir='',
+                              outDirMC = '', outDirData = '',commonCut='Et_25',
+                              extraOptions='',selection=''):
 
     assert (configFile != ''),'validation file name is empty'
     assert (len(splitFiles) != 0),'SplitFiles is empty'
     assert (baseDir != ''),'Base directory string is empty'
 
-    print 'Writing split scripts to tmp/runRangeSplits/'+configFile.split('.')[0]+'/'
+    print 'Writing split scripts to ' + '/'.join(splitFiles[0].split('/')[:3])
 
     scriptNames = []
     for file in splitFiles:
@@ -57,16 +54,20 @@ def createSplitRunScripts(splitFiles = [],configPath='data/validation/',
         scriptContent += 'eval $(scram runtime -sh)\n'
         scriptContent += 'cd Calibration/ZFitter/\n'
         scriptContent += '\n'
-
-        #stability_split.sh part...
-        scriptContent += './script/stability_split.sh'
+    
+        #ZFitter command
+        scriptContent += './bin/ZFitter.exe'
         scriptContent += ' -f '+configPath+configFile
-        scriptContent += ' --runRangesFile '+file
-        scriptContent += ' --regionsFile '+regionsPath+regionsFile
+        scriptContent += ' --regionsFile '+file
+        scriptContent += ' --updateOnly'
         scriptContent += ' --invMass_var '+invMass
-        scriptContent += ' --baseDir '+baseDir
+        scriptContent += ' --commonCut='+commonCut
         scriptContent += ' --selection '+selection
-        scriptContent += ' --stability'
+        scriptContent += ' --outDirFitResMC='+outDirMC+'/fitres'
+        scriptContent += ' --outDirFitResData='+outDirData+'/fitres'
+        scriptContent += ' --outDirImgMC='+outDirMC+'/img'
+        scriptContent += ' --outDirImgData='+outDirData+'/img'
+
         if extraOptions != '':
             scriptContent += ' ' + extraOptions
         scriptContent += '\n'
@@ -144,7 +145,7 @@ def createWhichMC(outDirData='',baseDir='',configFile='',selection='',invMass=''
         whichMC.close()
 
 
-def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=False):
+def submitSplitRegionScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=False):
 
     assert len(splitScripts) > 0, 'No scripts to submit to batch!!'
 
@@ -180,29 +181,31 @@ def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=Fal
     return jobs
 
 
-def makeTable(runRangesDir = 'data/runRanges/',runRangesFile='',commonCut='Et_25',outDirMC='',outDirData='',invMass = '',selection='',regionsPath='data/regions/',regionsFile='stability',extraOptions=''):
+def makeTable(runRangesDir = 'data/runRanges/',commonCut='Et_25',outDirMC='',outDirData='',invMass = '',selection='',regionsPath='data/regions/',regionsFile='',extraOptions=''):
+
+    assert regionsFile != '', 'Must specify the regions file'
 
     command = ''
     command += './script/makeTable.sh'
     command += ' --regionsFile ' + regionsPath+regionsFile
-    command += ' --runRangesFile ' + runRangesDir + runRangesFile
     command += ' --commonCut ' + commonCut
     command += ' --outDirFitResMC ' + outDirMC + '/fitres'
     command += ' --outDirFitResData ' + outDirData + '/fitres'
     if extraOptions != '':
         command += ' ' + extraOptions
-    command += ' > ' + outDirData + '/table/' + 'monitoring_stability-'+invMass+'-'+selection+'.tex'
+    command += ' > ' + outDirData + '/table/' + regionsFile.split('.')[0] + '-'+invMass+'-'+selection+'.tex'
 
     print command
     
-    os.chmod( os.getcwd()+'/script/makeTable.sh',0744)
+    os.chmod(os.getcwd()+'/script/makeTable.sh',0744)
 
     popen(command)
 
-    return 'monitoring_stability-'+invMass+'-'+selection+'.tex'
+    return regionsFile.split('.')[0] + '-'+invMass+'-'+selection+'.tex'
 
-def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=False,dryRun=True,regionsPath='data/regions/',regionsFile='stability'):
+def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=False,dryRun=True,regionsPath='data/regions/',regionsFile=''):
 
+    assert regionsFile != '', 'Must specify the regions file'
     assert (len(jobNames) > 0 and len(splitScripts) > 0), 'Both job names array and scripts array must not be empty'
     assert (len(jobNames) == len(splitScripts)), 'Jobs names array length must equal scripts array length'
 
@@ -233,7 +236,7 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
             else:
                 print 'Job is EXIT or DONE |',
 
-        fileNames = fitresFileNamesFromScriptName(splitScript,regionsFile=regionsFile)
+        fileNames = fitresFileNamesFromScriptName(splitScript)
         fileStatuses = []
         progress = ''
         for fileName in fileNames:
@@ -266,7 +269,7 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
         print 'The following are to be resubmitted:'
         for name,script in zip(resubNames,resub):
             print name,' ',script
-        submitSplitRunScripts(jobNames= resubNames,splitScripts=resub,queue='cmscaf1nh',dryRun=dryRun)
+        submitSplitRegionScripts(jobNames= resubNames,splitScripts=resub,queue='cmscaf1nh',dryRun=dryRun)
     else:
         print "No resubmissions needed :)"
 
@@ -275,29 +278,17 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
     else:
         return False
 
-def fitresFileNamesFromScriptName(scriptName = '',commonCut = 'Et_25',regionsPath='data/regions/',regionsFile='stability.dat'):
+def fitresFileNamesFromScriptName(scriptName = '',commonCut = 'Et_25'):
 
     assert scriptName != '', 'Script name must not be empty'
     
-    runMin = scriptName.split('/')[-1].split('_')[0]
-    runMax = scriptName.split('/')[-1].split('_')[1]
-    regions = getRegions(regionsFile)
     types = ['.tex','.root','.txt']
 
     fileNames = []
-    for region in regions:
-        for type in types:
-            name = region+'-runNumber_'+runMin+'_'+runMax+'-'+commonCut+type
-            fileNames.append(name)
+    
+    for t in types:
+        name = scriptName.split('/')[-1].split('_split')[0] + '-' + commonCut + t
+        fileNames.append(name)
 
     return fileNames
 
-def getRegions(regionsPath='data/regions/',regionsFile='stability.dat'):
-    
-    regions = []
-    with open(regionsPath+regionsFile) as f:
-        for line in f.read().split('\n'):
-            if '#' not in line and line != '':
-                regions.append(line)
-    return regions
- 

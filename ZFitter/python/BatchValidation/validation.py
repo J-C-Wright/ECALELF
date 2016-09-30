@@ -15,18 +15,18 @@ def createValidationScript(configPath='data/validation/',
     scriptContent += 'cd Calibration/ZFitter/\n'
     scriptContent += '\n'
 
-    #validation_split.sh part...
-    scriptContent += './script/validation_split.sh'
+    #validation part...
+    scriptContent += './script/monitoring_validation.sh'
     scriptContent += ' -f '+configPath+configFile
     scriptContent += ' --runRangesFile '+file
     scriptContent += ' --invMass_var '+invMass
     scriptContent += ' --baseDir '+baseDir
-    scriptContent += ' --stability'
+    scriptContent += ' --validation'
     scriptContent += '\n'
 
     #Write to the script file...
-    validationFile = open(scriptName,'w')
-    validationFile.write(scriptContent)
-    validationFile.close()
+    splitFile = open(scriptName,'w')
+    splitFile.write(scriptContent)
+    splitFile.close()
 
 
