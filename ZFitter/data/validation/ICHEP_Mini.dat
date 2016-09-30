@@ -1,0 +1,4 @@
+d1  selected    root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/MINIAODNTUPLE/80X_dataRun2_Prompt_v9/DoubleEG-Run2016E-noSkim-Prompt_v2-miniAOD/276830-277148/GoldenJson_4August/unmerged-allRange.root
+
+s1  selected    root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/MINIAODNTUPLE/80X_mcRun2_asymptotic_2016_v3/DYToEE_NNPDF30-powheg-pythia8/allRange/RunII-2016/DYToEE_NNPDF30-powheg-pythia8-allRange.root
+
