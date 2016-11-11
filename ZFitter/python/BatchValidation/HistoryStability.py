@@ -160,8 +160,8 @@ def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=Fal
         #Build command
         command = ''
         command += 'bsub'
-        command += ' -R "pool>30000" -q '+ queue
-        command += ' -M 300000 '
+        command += ' -R "pool>100000" -q '+ queue
+        command += ' -M 100000 '
         if len(jobNames) == 0:
             command += ' -J Split' + str(i)
         else:
@@ -202,7 +202,7 @@ def makeTable(runRangesDir = 'data/runRanges/',runRangesFile='',commonCut='Et_25
 
     return 'monitoring_stability-'+invMass+'-'+selection+'.tex'
 
-def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=False,dryRun=True,regionsPath='data/regions/',regionsFile='stability'):
+def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=False,dryRun=True,regionsPath='data/regions/',regionsFile='stability',queue='cmscaf1nh'):
 
     assert (len(jobNames) > 0 and len(splitScripts) > 0), 'Both job names array and scripts array must not be empty'
     assert (len(jobNames) == len(splitScripts)), 'Jobs names array length must equal scripts array length'
@@ -267,7 +267,7 @@ def monitorJobs(jobNames=[],splitScripts=[],outDirMC='',outDirData='',verbose=Fa
         print 'The following are to be resubmitted:'
         for name,script in zip(resubNames,resub):
             print name,' ',script
-        submitSplitRunScripts(jobNames= resubNames,splitScripts=resub,queue='cmscaf1nh',dryRun=dryRun)
+        submitSplitRunScripts(jobNames= resubNames,splitScripts=resub,queue=queue,dryRun=dryRun)
     else:
         print "No resubmissions needed :)"
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import ROOT
 import os
 import subprocess
 import stat
@@ -10,6 +11,7 @@ import sched,time
 from time import gmtime,strftime
 from optparse import OptionParser
 from BatchValidation import HistoryStability as hs
+from BatchValidation import InitCalibration as ic
 
 def get_options():
 
@@ -77,12 +79,9 @@ if __name__ == '__main__':
     dryRun = opt.dryRun
     monitoringMode = opt.monitoringMode
     baseDir = configFile.split('.')[0]+'-Batch/'
-    if opt.runRangesFile == '':
-        runRangesFile = configFile.split('.')[0]+'_interval_100000.dat'
-        #check it exists
-        #if not init calibraition stuff
-    else:
-        runRangesFile = opt.runRangesFile
+
+    interval = 100000
+    runRangesFile = configFile.split('.')[0]+'_interval_'+str(interval)+'.dat'
 
     print "Run details:"
     print "Queue: ",queue
@@ -94,6 +93,15 @@ if __name__ == '__main__':
     print "Monitoring mode: ",monitoringMode
     print "Runranges file: ",runRangesFile
     print "Base dir: ",baseDir
+
+    ROOT.gROOT.SetBatch(ROOT.kTRUE)
+
+    #Make pileup stuff and runranges file
+    if not monitoringMode:
+        print "Making pileup hists, pileup trees, and runRanges file..."
+        ic.make_pu_histograms(config='data/validation/'+configFile)
+        ic.make_pu_trees(config='data/validation/'+configFile)
+        ic.run_divide(config='data/validation/'+configFile,interval=100000)
 
     #Making the split runrange files in tmp
     splitFiles = hs.createSplitRunRangeFiles(runRangesFile=runRangesFile)
@@ -120,13 +128,13 @@ if __name__ == '__main__':
     checkPeriod = 300.0
     starttime = time.time()
     if monitoringMode:
-        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile,queue=queue)
     else:
         complete = False
     while not complete:
         time.sleep(checkPeriod - ((time.time() - starttime) % checkPeriod))
         print 'Checking jobs at ', strftime("%H:%M:%S", gmtime())
-        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile)
+        complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile,queue=queue)
 
     #Make the stability .tex table
     if complete:
