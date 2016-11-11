@@ -5,10 +5,13 @@ for f in `grep "^d" data/validation/${file}.dat | grep selected | awk -F" " ' { 
 do
     root -l -b $f macro/pu.C;
     tag=`grep "$f" data/validation/${file}.dat | grep selected | awk -F" " ' { print $1 } '`
-    echo "Tag is this:"
+    echo "[yacine] Tag is this:"
     echo $tag
     mv tmp/pu_temp.root tmp/pu_${tag}.root
-done 
+done
+echo "[yacine] list of historgam to hadd :"
+ls tmp/pu_d*.root
+echo "[yacine] hadd them"
 hadd -f data/puHistos/pu_data_${file}.root tmp/pu_d*.root
 
 #pileup histos for MC

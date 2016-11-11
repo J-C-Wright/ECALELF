@@ -1,0 +1,8 @@
+d1 selected root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/ALCARERECO/80X_dataRun2_Prompt_v10/DoubleEG-Run2016C-ZSkim-Prompt_v2-weightsReco/275420-276283/271036_276811-ICHEP/withExtras2/unmerged-allRange.root
+d1 selected root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/ALCARERECO/80X_dataRun2_Prompt_v10/DoubleEG-Run2016D-ZSkim-Prompt_v2-weightsReco/276315-276811/271036_276811-ICHEP/withExtras2/unmerged-allRange.root
+d1 selected root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/ALCARERECO/80X_dataRun2_Prompt_v10/DoubleEG-Run2016B-ZSkim-Prompt_v2-weightsReco/273150-275376/271036_276811-ICHEP/withExtras2/unmerged-allRange.root
+
+s1  selected    root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/ALCARECOSIM/80X_mcRun2_asymptotic_2016_v3/DYJets_madgraph-RunIISpring16/allRange/DYJets_madgraph-RunIISpring16-allRange.root
+d pileupHist data/puHistos/pu_data_rereco-pulse-ICHEP-2016.root
+s pileupHist data/puHistos/pu_MC_rereco-pulse-ICHEP-2016.root
+s1 pileup data/puTree/s1_rereco-pulse-ICHEP-2016.root

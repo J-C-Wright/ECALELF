@@ -73,7 +73,7 @@ configuration files.
 
 #define profile
 
-//#define DEBUG
+#define DEBUG
 #define smooth
 
 //#include "../macro/loop.C" // a way to use compiled macros with ZFitter
@@ -627,7 +627,9 @@ int main(int argc, char **argv)
 	std::vector<TString> regions = ReadRegionsFromFile(regionsFileName);
 	std::vector<TString> runRanges = ReadRegionsFromFile(runRangesFileName);
 	std::vector<TString> categories;
-
+	for (unsigned int i=0; i < regions.size(); i++){
+		std::cout << "[yacine] :: "<< i << " " << regions[i] << std::endl;
+	}
 	for(std::vector<TString>::const_iterator region_itr = regions.begin();
 	        region_itr != regions.end();
 	        region_itr++) {
@@ -643,6 +645,8 @@ int main(int argc, char **argv)
 				TObjArray *tx = runRange_itr->Tokenize("-");
 				token1 = ((TObjString *)(tx->At(0)))->String();
 				token2 = ((TObjString *)(tx->At(1)))->String();
+				std::cout << "[yacine] :: region token"<< std::endl;
+				std::cout << "[yacine] :: "<< (*region_itr) + "-runNumber_" + token1 + "_" + token2 + "-" + commonCut.c_str() << std::endl;
 				categories.push_back((*region_itr) + "-runNumber_" + token1 + "_" + token2 + "-" + commonCut.c_str());
 			}
 		} else categories.push_back((*region_itr) + "-" + commonCut.c_str());
@@ -1628,7 +1632,8 @@ int main(int argc, char **argv)
 	// check folder existance
 	fitter.SetPDF_model(signal_type_value, 0); // (0,0) convolution, CB no_bkg
 	//fitter.SetPDF_model(1,0); // cruijff, no_bkg
-
+	std::cout<< "[yacine small check]"<< __func__ << " :eleID: "<< eleID << std::endl;
+	std::cout<< "[yacine small check]"<< __func__ << " :commonCut.c_str(): "<< commonCut.c_str() << std::endl;
 	if(!vm.count("smearerFit")) {
 
 		fitter.Import(commonCut.c_str(), eleID, activeBranchList);

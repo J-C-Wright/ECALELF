@@ -1,0 +1,7 @@
+d1  selected    root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/MINIAODNTUPLE/80X_dataRun2_Prompt_v12/DoubleEG-Run2016H-noSkim-Prompt_v2-miniAOD/282092-284035/DoubleEG/merged.root
+
+s1  selected    root://eoscms//eos/cms/store/group/dpg_ecal/alca_ecalcalib/ecalelf/ntuples/13TeV/MINIAODNTUPLE/80X_mcRun2_asymptotic_2016_v3/DYToEE_NNPDF30-powheg-pythia8-miniAODv1/allRange/DYToEE_NNPDF30-powheg-pythia8-miniAODv1-allRange.root
+
+d pileupHist data/puHistos/pu_data_80X_dataRun2_Prompt_v11_Nov2016_RunH2.root
+s pileupHist data/puHistos/pu_MC_80X_dataRun2_Prompt_v11_Nov2016_RunH2.root
+s1 pileup data/puTree/s1_80X_dataRun2_Prompt_v11_Nov2016_RunH2.root

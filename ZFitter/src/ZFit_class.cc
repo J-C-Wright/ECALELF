@@ -1,4 +1,4 @@
-/// Zee Fit class: BW+CB and Cruijff
+// Zee Fit class: BW+CB and Cruijff
 
 /**\class ZFit_class ZFit_class.cc Calibration/ZFitter/src/ZNtupleDumper.cc
 Description: class that provide flexible and simple way to fit the Zee invariant mass shape with different pdfs:
@@ -182,7 +182,7 @@ TChain *ZFit_class::ImportTree(TChain *chain, TString commonCut, std::set<TStrin
 	chain->SetBranchStatus("invMass_SC", 1);
 	chain->AddBranchToCache("*", kTRUE);
 
-	//std::cout << commonCut << std::endl;
+	std::cout <<"[yacine] common cut :: "<<__func__ <<":: "<< commonCut << std::endl;
 	TString evListName = "evList_";
 	evListName += chain->GetTitle();
 #ifdef DEBUG
@@ -1273,6 +1273,8 @@ TString	ZFit_class::GetEnergyVarName(TString invMass_name)
 	else if(invMass_var == "invMass_rawSC") energyBranchName = "rawEnergySCEle";
 	else if(invMass_var == "invMass_rawSC_esSC") energyBranchName = "rawEnergySCEle+esEnergySCEle";
 	else if(invMass_var == "invMass_SC") energyBranchName = "energySCEle";
+	else if(invMass_var == "invMass_efull5x5") energyBranchName = "efull5x5SCEle";
+	else if(invMass_var == "invMass_e5x5") energyBranchName = "e5x5SCEle";
 	else if(invMass_var == "invMass_SC_corr") energyBranchName = "energySCEle_corr";
 	else if(invMass_var == "invMass_SC_must") energyBranchName = "energySCEle_must";
 	else if(invMass_var == "invMass_SC_regrCorrSemiParV4_ele") energyBranchName = "energySCEle_regrCorrSemiParV4_ele";

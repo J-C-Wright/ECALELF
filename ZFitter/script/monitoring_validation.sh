@@ -59,7 +59,6 @@ desc(){
 
 # options may be followed by one colon to indicate they have a required argument
 if ! options=$(getopt -u -o hf: -l help,runRangesFile:,regionsFile:,selection:,invMass_var:,puName:,baseDir:,rereco:,validation,stability,etaScale,npvScale,lcScale,systematics:,slides,onlyTable,test,commonCut:,period:,cruijff,refreg,R9Ele -- "$@")
-then
     # something went wrong, getopt will put out an error message for us
     exit 1
 fi
@@ -79,7 +78,7 @@ do
 	--baseDir) baseDir=$2; echo "[OPTION] baseDir = $baseDir"; shift;;
 	--rereco) rereco=$2; echo "[OPTION] rereco = $rereco"; shift;;
 	--validation)  VALIDATION=y;;
-	--stability)   STABILITY=y;;
+	--stability)   STABILTY=y;;
 	--etaScale)    ETA=y;;
 	--npvScale)    NPV=y;;
     --lcScale)     LC=y;;
@@ -359,6 +358,48 @@ if [ -n "$ETA" ];then
     fi
 
    ./script/stability.sh -t ${tableFile} \
+	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y peak $xMin $xMax || exit 1
+    ./script/stability.sh -t ${tableFile} \
+	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y scaledWidth $xMin $xMax || exit 1
+    
+fi
+
+
+if [ -n "$NPV" ];then
+    regionFile=data/regions/nPV.dat
+    xVar=nPV
+    if [ -n "$STEP4" ];then
+	tableFile=${outDirTable}/step2nPV-${invMass_var}-${selection}-${commonCut}.tex
+    else
+	tableFile=${outDirTable}/nPV-${invMass_var}-${selection}-${commonCut}.tex
+    fi
+    if [ -z "${ONLYTABLE}" ];then
+	if [ -n "$STEP4" ];then
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
+		${extraOptions} \
+		--corrEleType HggRunEtaR9 \
+		--corrEleFile ${outDirTable}/step2-${invMass_var}-${selection}-Et_20-trigger-noPF-HggRunEtaR9.dat \
+		$updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
+		--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/step4/fitres \
+		--outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/step4/img \
+		> ${outDirData}/log/step4_nPV.log || exit 1
+	else
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
+		${extraOptions} \
+		$updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
+		--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
+		--outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/nPV.log || exit 1
+	fi
+    fi
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
+	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
+	${tableCruijffOption} >  ${tableFile} || exit 1
+
+    if [ ! -d ${outDirData}/img/stability/$xVar/$PERIOD ];then
+	mkdir -p ${outDirData}/img/stability/$xVar/$PERIOD
+    fi
+
+    ./script/stability.sh -t ${tableFile} \
 	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y peak $xMin $xMax || exit 1
     ./script/stability.sh -t ${tableFile} \
 	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y scaledWidth $xMin $xMax || exit 1

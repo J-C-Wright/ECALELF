@@ -8,9 +8,17 @@ if [[ $1 = "" ]]; then
     echo "you should specify the validation file"; exit;
 fi
 
+echo " [yacine] make directories ..."
+mkdir -p data/puHistos
+mkdir -p data/puTree
+
+echo " [yacine] checking that nothing is inside ..."
+rm -rf data/puHistos/*
+rm -rf data/puHistos/*
+
 #add branch r9 => not safe in 2016 scenario
 ##./script/addBranch.sh data/validation/${file}.dat R9Eleprime
-#make pileupHist: they are used to make pileupTrees, and also they are required for step1
+#make pileupHist: they are used to make pileupTrees, and also they arerequired for step1
 pileupHist
 ##make pileupTree
 pileupTrees

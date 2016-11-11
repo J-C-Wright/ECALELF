@@ -4,20 +4,20 @@ source ~/.bashrc
 
 #1)Fai pileupHist
 pileupHist(){
-script/pileup_histoMaker.sh $file
+    script/pileup_histoMaker.sh $file
 }
 
 pileupTrees(){
-#region name is there just because it's mandatory for ZFitter
-./bin/ZFitter.exe -f data/validation/${file}.dat --regionsFile=data/regions/scaleStep0.dat --saveRootMacro
-
+    #region name is there just because it's mandatory for ZFitter
+    ./bin/ZFitter.exe -f data/validation/${file}.dat --regionsFile=data/regions/scaleStep0.dat --saveRootMacro
+    
 #pileUPtree
-for tag in `grep "^s" data/validation/${file}.dat | grep selected | awk -F" " ' { print $1 } '`
-do
-    #tag e' s1, s2, ...
-    mv tmp/mcPUtree${tag}.root  data/puTree/${tag}_${file}.root
-    echo "${tag} pileup data/puTree/${tag}_${file}.root" >> data/validation/${file}.dat 
-done
+    for tag in `grep "^s" data/validation/${file}.dat | grep selected | awk -F" " ' { print $1 } '`
+    do
+	#tag e' s1, s2, ...
+	mv tmp/mcPUtree${tag}.root  data/puTree/${tag}_${file}.root
+	echo "${tag} pileup data/puTree/${tag}_${file}.root" >> data/validation/${file}.dat 
+    done
 }
 
 Categorize(){

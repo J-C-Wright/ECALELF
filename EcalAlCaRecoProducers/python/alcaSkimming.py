@@ -242,7 +242,7 @@ else:
         else:
             process.GlobalTag.globaltag = 'GR_R_62_V3::All'
             if(options.files==""):
-                process.source.fileNames=[ 'root://cms-xrd-global.cern.ch//store/data/Run2012D/DoubleElectron/AOD/15Apr2014-v1/00000/0EA11D35-0CD5-E311-862E-0025905A6070.root' ]
+                process.source.fileNames=[ '/store/data/Run2016H/DoubleEG/MINIAOD/PromptReco-v2/000/282/037/00000/12FBB60D-9989-E611-974A-02163E01355B.root' ]  #root://cms-xrd-global.cern.ch//store/data/Run2012D/DoubleElectron/AOD/15Apr2014-v1/00000/0EA11D35-0CD5-E311-862E-0025905A6070.root' ]
     elif(re.match("CMSSW_7_5_.*",CMSSW_VERSION)):
         if(MC):
             print "[INFO] Using GT auto:run2_mc"
