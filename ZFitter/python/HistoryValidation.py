@@ -18,7 +18,7 @@ def get_options():
     parser = OptionParser()
 
     parser.add_option( "-q", "--queue",
-                       dest="queue", default='cmscaf1nh',
+                       dest="queue", default='cmscaf1nd',
                        help="""
                        Specifies which queue to submit jobs to. Default is cmscaf1nh.
                        """)
@@ -63,6 +63,11 @@ def get_options():
                        help="""
                        Activates monitoring mode. Does not create and submit jobs, just looks at status of running jobs.
                        """)
+    parser.add_option("-n","--interval",
+                      dest="interval",default="100000",
+                      help="""
+                      Interval to divide runs over: min events in each run division(approx.)
+                      """)
 
     return parser.parse_args()
 
@@ -73,15 +78,15 @@ if __name__ == '__main__':
 
     queue = opt.queue
     regionsFile=opt.regionsFile
+    runRangesFile = opt.runRangesFile
     configFile = opt.configFile
     selection = opt.selection
     invMass = opt.invMass
     dryRun = opt.dryRun
     monitoringMode = opt.monitoringMode
     baseDir = configFile.split('.')[0]+'-Batch/'
+    interval = int(opt.interval)
 
-    interval = 100000
-    runRangesFile = configFile.split('.')[0]+'_interval_'+str(interval)+'.dat'
 
     print "Run details:"
     print "Queue: ",queue
@@ -91,17 +96,24 @@ if __name__ == '__main__':
     print "Inv. mass: ",invMass
     print "Dry run: ", dryRun
     print "Monitoring mode: ",monitoringMode
-    print "Runranges file: ",runRangesFile
+    if runRangesFile == '':
+        print "Runranges file: to be generated"
+    else:
+        print "Runranges file: ",runRangesFile
     print "Base dir: ",baseDir
+    print "Interval: ",interval
 
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
     #Make pileup stuff and runranges file
-    if not monitoringMode:
-        print "Making pileup hists, pileup trees, and runRanges file..."
+    if not monitoringMode and runRangesFile=='':
+        print "Making PU histograms..."
         ic.make_pu_histograms(config='data/validation/'+configFile)
+        print "Making PU trees..."
         ic.make_pu_trees(config='data/validation/'+configFile)
-        ic.run_divide(config='data/validation/'+configFile,interval=100000)
+        print "Making run divisions..."
+        ic.run_divide(config='data/validation/'+configFile,interval=interval)
+        runRangesFile = configFile.split('.')[0]+'_interval_'+str(interval)+'.dat'
 
     #Making the split runrange files in tmp
     splitFiles = hs.createSplitRunRangeFiles(runRangesFile=runRangesFile)
