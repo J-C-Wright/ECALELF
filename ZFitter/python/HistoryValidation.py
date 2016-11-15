@@ -12,6 +12,7 @@ from time import gmtime,strftime
 from optparse import OptionParser
 from BatchValidation import HistoryStability as hs
 from BatchValidation import InitCalibration as ic
+from BatchValidation import MonitoringSummary as ms
 
 def get_options():
 
@@ -127,26 +128,39 @@ if __name__ == '__main__':
                                         baseDir=baseDir,outDirMC=outDirMC,invMass=invMass,
                                         outDirData=outDirData,regionsFile=regionsFile,
                                         extraOptions='',selection=selection)
+    mon_sum_script_path = ms.createValidationScript(configFile=configFile,baseDir=baseDir,selection=selection,invMass=invMass)
+
+    #Dry run ends here. No need for submission or monitoring 
     if dryRun:
         sys.exit(0)
                                         
     #Submitting the jobs
     if not monitoringMode:
         jobNames = hs.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=dryRun)
+        mon_sum_jobID = ms.submitValidationScript(script=mon_sum_script_path)
     else:
         jobNames = hs.submitSplitRunScripts(splitScripts=splitScripts,queue=queue,dryRun=True)
+        mon_sum_jobID = ms.submitValidationScript(script=mon_sum_script_path,dryRun=True)
 
     #Monitor the jobs and resubmit when they fail
     checkPeriod = 300.0
     starttime = time.time()
+
+
     if monitoringMode:
         complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile,queue=queue)
+        mon_sum_jobID = ms.monitorValidationScript(configFile=configFile,baseDir=baseDir,selection=selection,script=mon_sum_script_path,invMass=invMass,jobID=mon_sum_jobID)
     else:
         complete = False
-    while not complete:
+        mon_sum_jobID = ms.monitorValidationScript(configFile=configFile,baseDir=baseDir,selection=selection,script=mon_sum_script_path,invMass=invMass,jobID=mon_sum_jobID)
+
+    while not complete and mon_sum_jobID != '0':
         time.sleep(checkPeriod - ((time.time() - starttime) % checkPeriod))
         print 'Checking jobs at ', strftime("%H:%M:%S", gmtime())
         complete = hs.monitorJobs(jobNames,splitScripts,outDirMC,outDirData,verbose=True,dryRun=dryRun,regionsFile=regionsFile,queue=queue)
+        print 'Checking the monitoring summary...'
+        mon_sum_jobID = ms.monitorValidationScript(configFile=configFile,baseDir=baseDir,selection=selection,script=mon_sum_script_path,invMass=invMass,jobID=mon_sum_jobID)
+        print mon_sum_jobID
 
     #Make the stability .tex table
     if complete:

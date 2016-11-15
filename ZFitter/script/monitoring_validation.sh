@@ -9,7 +9,6 @@ invMass_max=115
 configFile=data/validation/monitoring_2012_53X.dat
 
 runRangesFile=data/runRanges/monitoring.dat
-regionsFile=data/regions/stability.dat
 baseDir=test2
 updateOnly="--updateOnly"
 #extraOptions="--forceNewFit"
@@ -26,14 +25,12 @@ usage(){
     echo " -f arg (=${configFile})"
 #    echo " --puName arg             "
     echo " --runRangesFile arg (=${runRangesFile})  run ranges for stability plots"
-    echo " --regionsFile arg (=${regionsFile}) regions" 
     echo " --selection arg (=${selection})     "
     echo " --invMass_var arg (=${invMass_var})"
     echo " --validation: run the validation only, not the history and etaScale fits"
     echo " --stability:  run the stability fits only"
     echo " --etaScale:   run the fits in |eta| only"
-    echo " --npvScale:   run the fits in npv only"
-    echo " --lcScale:   run the fits in lc only"
+    echo " --nPVscale:   run the fits in nPV only"
     echo " --R9Ele:      run the fits in bin of R9 only"
     echo " --onlyTable:  do not run the fits, recreate only the tables and the stability plots"
     echo " --systematics all/pu      "
@@ -58,7 +55,8 @@ desc(){
 
 
 # options may be followed by one colon to indicate they have a required argument
-if ! options=$(getopt -u -o hf: -l help,runRangesFile:,regionsFile:,selection:,invMass_var:,puName:,baseDir:,rereco:,validation,stability,etaScale,npvScale,lcScale,systematics:,slides,onlyTable,test,commonCut:,period:,cruijff,refreg,R9Ele -- "$@")
+if ! options=$(getopt -u -o hf: -l help,runRangesFile:,selection:,invMass_var:,puName:,baseDir:,rereco:,validation,stability,etaScale,nPVscale,systematics:,slides,onlyTable,test,commonCut:,period:,cruijff,refreg,R9Ele -- "$@")
+then
     # something went wrong, getopt will put out an error message for us
     exit 1
 fi
@@ -74,14 +72,12 @@ do
         --invMass_var) invMass_var=$2; echo "[OPTION] invMass_var = ${invMass_var}"; shift;;
 	--puName) puName=$2; shift;;
 	--runRangesFile) runRangesFile=$2; echo "[OPTION] runRangesFile = ${runRangesFile}"; shift;;
-    --regionsFile) regionsFile=$2; echo "[OPTION] regionsFile = ${regionsFile}"; shift;;
 	--baseDir) baseDir=$2; echo "[OPTION] baseDir = $baseDir"; shift;;
 	--rereco) rereco=$2; echo "[OPTION] rereco = $rereco"; shift;;
 	--validation)  VALIDATION=y;;
 	--stability)   STABILTY=y;;
 	--etaScale)    ETA=y;;
-	--npvScale)    NPV=y;;
-    --lcScale)     LC=y;;
+	--nPVscale)    NPV=y;;
 	--R9Ele)       R9ELE=y;;
 	--refreg)      REFREG=y;;
 	--systematics) SYSTEMATICS=$2; shift;;
@@ -261,9 +257,9 @@ if [ ! -e "${outDirData}/log" ];then mkdir ${outDirData}/log -p; fi
 echo "$outDirMC" > $outDirData/whichMC.txt
 
 if [ -n "$VALIDATION" ];then
-    regionsFile=data/regions/validation.dat
+    regionFile=data/regions/validation.dat
 	if [ -z "${ONLYTABLE}" ];then
-		./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionsFile}  --invMass_var ${invMass_var} \
+		./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionFile}  --invMass_var ${invMass_var} \
 			${extraOptions} \
 			--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 			--commonCut=${commonCut}  --selection=${selection} --invMass_min=${invMass_min} --invMass_max=${invMass_max} \
@@ -271,20 +267,20 @@ if [ -n "$VALIDATION" ];then
 	fi
 	
 
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 		--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres ${tableCruijffOption} \
 		>  ${outDirTable}/$PERIOD/monitoring_summary-${invMass_var}-${selection}-${commonCut}.tex || exit 1
 fi
 
 ##################################################
 if [ -n "$STABILITY" ];then
-    #regionsFile=data/regions/stability.dat
+    regionFile=data/regions/stability.dat
     #mkdir ${outDirData}/{fitres,img}/{floating,invMass_range,invMass_range2} -p
 
     xVar=runNumber
     if [ -z "$PERIOD" ];then
 	if [ -z "${ONLYTABLE}" ];then
-	    ./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionsFile}  --runRangesFile ${runRangesFile} \
+	    ./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionFile}  --runRangesFile ${runRangesFile} \
 		${extraOptions} \
 		$updateOnly --commonCut=${commonCut} \
 		--invMass_var ${invMass_var} --selection=${selection} \
@@ -297,10 +293,10 @@ if [ -n "$STABILITY" ];then
 	
 
 	fi
-	#./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} --runRangesFile ${runRangesFile} \
+	#./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} --runRangesFile ${runRangesFile} \
 	#    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres/floating ${tableCruijffOption} \
 	#    >  ${outDirTable}/monitoring_stability_floating-${invMass_var}-${selection}.tex || exit 1
-	./script/makeTable.sh --regionsFile ${regionsFile}  --runRangesFile ${runRangesFile} --commonCut=${commonCut} \
+	./script/makeTable.sh --regionsFile ${regionFile}  --runRangesFile ${runRangesFile} --commonCut=${commonCut} \
 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres ${tableCruijffOption} \
 	    >  ${outDirTable}/monitoring_stability-${invMass_var}-${selection}-${commonCut}.tex || exit 1
     fi
@@ -323,9 +319,8 @@ fi
 
 
 if [ -n "$ETA" ];then
-    regionsFile=data/regions/absEta.dat
-
-    xVar=LC
+    regionFile=data/regions/absEta.dat
+    xVar=absEta
     if [ -n "$STEP4" ];then
 	tableFile=${outDirTable}/step2absEta-${invMass_var}-${selection}-${commonCut}.tex
     else
@@ -333,7 +328,7 @@ if [ -n "$ETA" ];then
     fi
     if [ -z "${ONLYTABLE}" ];then
 	if [ -n "$STEP4" ];then
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		--corrEleType HggRunEtaR9 \
 		--corrEleFile ${outDirTable}/step2-${invMass_var}-${selection}-Et_20-trigger-noPF-HggRunEtaR9.dat \
@@ -342,14 +337,14 @@ if [ -n "$ETA" ];then
 		--outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/step4/img \
 		> ${outDirData}/log/step4_absEta.log || exit 1
 	else
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		$updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
 		--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 		--outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/absEta.log || exit 1
 	fi
     fi
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	${tableCruijffOption} >  ${tableFile} || exit 1
 
@@ -357,7 +352,7 @@ if [ -n "$ETA" ];then
 	mkdir -p ${outDirData}/img/stability/$xVar/$PERIOD
     fi
 
-   ./script/stability.sh -t ${tableFile} \
+    ./script/stability.sh -t ${tableFile} \
 	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y peak $xMin $xMax || exit 1
     ./script/stability.sh -t ${tableFile} \
 	--outDirImgData ${outDirData}/img/stability/$xVar/$PERIOD/ -x $xVar -y scaledWidth $xMin $xMax || exit 1
@@ -408,57 +403,18 @@ fi
 
 
 
-if [ -n "$NPV" ];then
-
-    regionsFile=data/regions/nPV.dat
-  
-	tableFile=${outDirTable}/nPV-${invMass_var}-${selection}-${commonCut}.tex
-   
-    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
-    ${extraOptions} \
-    $updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
-    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
-    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/nPV.log || exit 1
-    
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
-	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
-	${tableCruijffOption} >  ${tableFile} || exit 1
-    
-fi    
-
-if [ -n "$LC" ];then
-
-    regionsFile=data/regions/LC.dat
-  
-	tableFile=${outDirTable}/LC-${invMass_var}-${selection}-${commonCut}.tex
-   
-    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
-    ${extraOptions} \
-    $updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
-    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
-    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/LC.log || exit 1
-    
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
-	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
-	${tableCruijffOption} >  ${tableFile} || exit 1
-    
-fi    
-
-
-
-
 if [ -n "$R9ELE" ];then
-    regionsFile=data/regions/R9Ele.dat
+    regionFile=data/regions/R9Ele.dat
     xVar=R9Ele
     tableFile=${outDirTable}/R9Ele-${invMass_var}-${selection}-${commonCut}.tex
     if [ -z "${ONLYTABLE}" ];then
-	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 	    ${extraOptions} \
 	    $updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/R9Ele.log || exit 1
     fi
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	${tableCruijffOption} >  ${tableFile} || exit 1
 
@@ -474,16 +430,16 @@ if [ -n "$R9ELE" ];then
 fi    
 
 if [ -n "${REFREG}" ];then
-    regionsFile=data/regions/refReg.dat
+    regionFile=data/regions/refReg.dat
     tableFile=${outDirTable}/RefReg-${invMass_var}-${selection}-${commonCut}.tex
     if [ -z "${ONLYTABLE}" ];then
-	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 	    ${extraOptions} \
 	    $updateOnly --invMass_var ${invMass_var} --commonCut=${commonCut} --selection=${selection} \
 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/RefReg.log || exit 1
     fi
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	${tableCruijffOption} >  ${tableFile} || exit 1
     
@@ -491,9 +447,9 @@ fi
 
 
 if [ -n "${TEST}" ];then
-    regionsFile=data/regions/test.dat
+    regionFile=data/regions/test.dat
 if [ -z "${ONLYTABLE}" ];then
-    ./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionsFile}  --invMass_var ${invMass_var} \
+    ./bin/ZFitter.exe -f ${configFile} --regionsFile ${regionFile}  --invMass_var ${invMass_var} \
 	${extraOptions} \
 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	--commonCut=${commonCut}  --selection=${selection} --invMass_min=${invMass_min} --invMass_max=${invMass_max} \
@@ -501,7 +457,7 @@ if [ -z "${ONLYTABLE}" ];then
 fi
 
 
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres ${tableCruijffOption} \
 	>  ${outDirTable}/$PERIOD/test-${invMass_var}-${selection}-${commonCut}.tex || exit 1
 fi
@@ -513,31 +469,31 @@ if [ -n "$SYSTEMATICS" ];then
     # pileup EB, pileup EE
     # 
 
-#     regionsFile=data/regions/test.dat
+#     regionFile=data/regions/test.dat
 #     tableFile=${outDirTable}/alphaSM-${invMass_var}-${selection}.tex
 #     if [ -z "${ONLYTABLE}" ];then
-# 	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+# 	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 # 	    ${extraOptions} \
 # 	    $updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} \
 # 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 # 	    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/alphaSM.log || exit 1
 #     fi
-#     ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+#     ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 # 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres ${tableCruijffOption} \
 # 	> ${tableFile}  || exit 1
 #     exit 0
 
-    regionsFile=data/regions/systematics.dat
+    regionFile=data/regions/systematics.dat
     tableFile=${outDirTable}/systematics-${invMass_var}-${selection}-${commonCut}.tex
     if [ -z "${ONLYTABLE}" ];then
-	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 	    ${extraOptions} \
 	    $updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 	    --corrEleType=HggRunEtaR9Et \
 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/systematics.log || exit 1
     fi
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres ${tableCruijffOption} \
 	> ${tableFile}  || exit 1
     
@@ -553,53 +509,53 @@ if [ -n "$SYSTEMATICS" ];then
     done
     
     if [ "${SYSTEMATICS}" == "all" -o "${SYSTEMATICS}" == "fitMethod" ];then
-	regionsFile=data/regions/validation.dat
+	regionFile=data/regions/validation.dat
 	
 	mkdir ${outDirData}/{fitres,img}/{floating,invMass_range,invMass_range2, floating_invMass_range, floating_invMass_range2} -p
 	mkdir ${outDirMC}/{fitres,img}/{invMass_range,invMass_range2,binning1} -p
 	
 	####### fit type =0: floating tails
 	if [ -z "${ONLYTABLE}" ];then
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		$updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 		--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres/floating \
 		--outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img/floating \
 		--fit_type_value=0 > ${outDirData}/log/fit_systematics_floating.log
 	fi
-	./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} \
+	./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} \
 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres/floating ${tableCruijffOption} \
 	    >  ${outDirTable}/fit_systematics_floating-${invMass_var}-${selection}-${commonCut}.tex || exit 1
 	
 	####### fit mass range: [70-110]
 	if [ -z "${ONLYTABLE}" ];then
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		$updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 		--outDirFitResMC=${outDirMC}/fitres/invMass_range --outDirFitResData=${outDirData}/fitres/invMass_range \
 		--outDirImgMC=${outDirMC}/img/invMass_range    --outDirImgData=${outDirData}/img/invMass_range \
 		--invMass_min=70 --invMass_max=110 > ${outDirData}/log/fit_systematics_invMass_range.log
 	fi
-	./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} ${tableCruijffOption} \
+	./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} ${tableCruijffOption} \
 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres/invMass_range \
 	    >  ${outDirTable}/fit_systematics_invMass_range-${invMass_var}-${selection}-${commonCut}.tex || exit 1
 	
 	####### fit mass range: [75-105]
 	if [ -z "${ONLYTABLE}" ];then
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		$updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 		--outDirFitResMC=${outDirMC}/fitres/invMass_range_2 --outDirFitResData=${outDirData}/fitres/invMass_range2 \
 		--outDirImgMC=${outDirMC}/img/invMass_range2    --outDirImgData=${outDirData}/img/invMass_range2 \
 		--invMass_min=75 --invMass_max=105 > ${outDirData}/log/fit_systematics_invMass_range2.log
 	fi
-# 	./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} ${tableCruijffOption} \
+# 	./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} ${tableCruijffOption} \
 # 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres/invMass_range2 \
 # 	    >  ${outDirTable}/fit_systematics_invMass_range2-${invMass_var}-${selection}.tex || exit 1
 
 	####### fit mass range: [70-110]
 	if [ -z "${ONLYTABLE}" ];then
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		$updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 		--outDirFitResMC=${outDirMC}/fitres/invMass_range \
@@ -608,13 +564,13 @@ if [ -n "$SYSTEMATICS" ];then
 		--outDirImgData=${outDirData}/img/floating_invMass_range \
 		--fit_type_value=0 --invMass_min=70 --invMass_max=110 > ${outDirData}/log/fit_systematics_floating_invMass_range.log
 	fi
-	./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} ${tableCruijffOption} \
+	./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} ${tableCruijffOption} \
 	    --outDirFitResMC=${outDirMC}/fitres/invMass_range --outDirFitResData=${outDirData}/fitres/invMass_range \
 	    >  ${outDirTable}/fit_systematics_floating_invMass_range-${invMass_var}-${selection}-${commonCut}.tex || exit 1
 	
 	####### fit mass range: [75-105]
 	if [ -z "${ONLYTABLE}" ];then
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		$updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 		--outDirFitResMC=${outDirMC}/fitres/invMass_range2 \
@@ -623,13 +579,13 @@ if [ -n "$SYSTEMATICS" ];then
 		--outDirImgData=${outDirData}/img/floating_invMass_range2 \
 		--fit_type_value=0 --invMass_min=75 --invMass_max=105 > ${outDirData}/log/fit_systematics_floating_invMass_range2.log
 	fi
-# 	./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} ${tableCruijffOption} \
+# 	./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} ${tableCruijffOption} \
 # 	    --outDirFitResMC=${outDirMC}/fitres/invMass_range2 --outDirFitResData=${outDirData}/fitres/invMass_range2 \
 # 	    >  ${outDirTable}/fit_systematics_floating_invMass_range2-${invMass_var}-${selection}.tex || exit 1
 	
 	####### binning1: 0.75
 	#if [ -z "${ONLYTABLE}" ];then
-	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	    ./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 		${extraOptions} \
 		$updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 		--outDirFitResMC=${outDirMC}/fitres/binning1 \
@@ -638,7 +594,7 @@ if [ -n "$SYSTEMATICS" ];then
 		--outDirImgData=${outDirData}/img/binning1 \
 		--fit_type_value=0 --invMass_binWidth=0.75 > ${outDirData}/log/fit_systematics_binning1.log
 	#fi
-	./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} ${tableCruijffOption} \
+	./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} ${tableCruijffOption} \
 	    --outDirFitResMC=${outDirMC}/fitres/binning1 --outDirFitResData=${outDirData}/fitres/binning1 \
 	    >  ${outDirTable}/fit_systematics_binning1-${invMass_var}-${selection}.tex || exit 1
 
@@ -651,19 +607,19 @@ fi
 
 if [ -n "$SYSTEMATICSD" ];then
     xVar=invMassRelSigma_SC_regrCorr_ele
-    regionsFile=data/regions/invMassRelSigma_SC_regrCorr_ele.dat
+    regionFile=data/regions/invMassRelSigma_SC_regrCorr_ele.dat
     if [ ! -e "${outDirData}/img/stability/$xVar/$PERIOD/" ];then
 	mkdir ${outDirData}/img/stability/$xVar/$PERIOD/ -p
     fi
     if [ -z "${ONLYTABLE}" ];then
-	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionsFile}  \
+	./bin/ZFitter.exe ${otherOptions} -f ${configFile} --regionsFile ${regionFile}  \
 	    ${extraOptions} \
 	    $updateOnly --invMass_var ${invMass_var} 	--commonCut=${commonCut} --selection=${selection} \
 	    --outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	    --outDirImgMC=${outDirMC}/img    --outDirImgData=${outDirData}/img > ${outDirData}/log/systematics.log || exit 1
     fi
     tableFile=${outDirTable}/systematics-${invMass_var}-${selection}.tex
-    ./script/makeTable.sh --regionsFile ${regionsFile}  --commonCut=${commonCut} ${tableCruijffOption} \
+    ./script/makeTable.sh --regionsFile ${regionFile}  --commonCut=${commonCut} ${tableCruijffOption} \
 	--outDirFitResMC=${outDirMC}/fitres --outDirFitResData=${outDirData}/fitres \
 	>  ${tableFile} || exit 1
 
