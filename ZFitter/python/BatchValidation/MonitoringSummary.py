@@ -43,6 +43,26 @@ def RepresentsInt(s):
         except ValueError:
             return False
 
+def expected_products(commonCut = 'Et_25',regionsPath='data/regions/',regionsFile='validation.dat'):
+
+    regions = []
+    with open(regionsPath+regionsFile,'r') as r_file:
+        content = r_file.read()
+        for line in content.split('\n'):
+            if line == '' or line[0] == '#': 
+                continue
+            regions.append(line)
+
+    types = ['.tex','.root','.txt']
+    fileNames = []
+    for region in regions:
+        for type in types:
+            name = region+'-'+commonCut+type
+            fileNames.append(name)
+
+    return fileNames
+
+
 def submitValidationScript(script='',jobName='valRun',queue='cmscaf1nd',dryRun=False):
 
     #Get current working directory
@@ -108,21 +128,4 @@ def monitorValidationScript(baseDir='',configFile='',script='',jobName='valRun',
     else:
         print "Job "+jobID+" is in progress"
         return jobID
-
-
-
-
-
-
-configFile = 'Cal_Sep2016_final_v3.dat'
-baseDir = configFile.split('.')[0]+'-Batch/'
-selection = 'loose25nsRun2'
-invMass = 'invMass_SC_must_regrCorr_ele'
-
-
-
-
-
-
-
 
