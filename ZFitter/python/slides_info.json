@@ -1,0 +1,42 @@
+{
+    "dataset": "September rereco up to Run G and prompt H", 
+    "fit": "Breit-Wigner convoluted with Crystal Ball", 
+    "globaltag": "placeholder", 
+    "invmass": "SC must regrCorr ele", 
+    "mcname": "placeholder", 
+    "people": {
+        "Jack": {
+            "institute": "Imperial College London", 
+            "name": "J. Wright"
+        }, 
+        "Shervin": {
+            "institute": "University of Minnesota", 
+            "name": "S. Nourbakhsh"
+        }, 
+        "Yacine": {
+            "institute": "Imperial College London", 
+            "name": "Y. Haddad"
+        }
+    }, 
+    "rerecotag": "(placeholder)", 
+    "selection": "loose25nsRun2", 
+    "title": "Latest prompt (Run H) with September Re-reco",
+    "date":"21/11/2016",
+    "historyplots":"Cal_Nov2016_Rereco_plusHPrompt-Batch/HistoryPlots/invMass_SC_must_regrCorr_ele_loose25nsRun2/",
+    "summary_table":"Cal_Nov2016_Rereco_plusHPrompt-Batch/dato/Cal_Nov2016_Rereco_plusHPrompt/loose25nsRun2/invMass_SC_must_regrCorr_ele/table/monitoring_summary-invMass_SC_must_regrCorr_ele-loose25nsRun2-Et_25.tex",
+    "data_fit_plots":"Cal_Nov2016_Rereco_plusHPrompt-Batch/dato/Cal_Nov2016_Rereco_plusHPrompt/loose25nsRun2/invMass_SC_must_regrCorr_ele/img/",
+    "mc_fit_plots":"Cal_Nov2016_Rereco_plusHPrompt-Batch/MC/DYToEE_NNPDF30-powheg-pythia8-miniAODv1-allRange/pu_data_Cal_Nov2016_Rereco_plusHPrompt/loose25nsRun2/invMass_SC_must_regrCorr_ele/img/",
+    "regions":[ "EB",
+                "EB-gold",
+                "EB-bad",
+                "EB-absEta_0_1",
+                "EB-absEta_1_1.4442",
+                "EE",
+                "EE-gold",
+                "EE-bad",
+                "EE-absEta_1.566_2",
+                "EE-absEta_2_2.5"]
+    
+}
+
+

@@ -1,0 +1,42 @@
+{
+    "dataset": "Prompt from run B to run H",
+    "fit": "Breit-Wigner convoluted with Crystal Ball", 
+    "globaltag": "placeholder", 
+    "invmass": "SC corr", 
+    "mcname": "placeholder", 
+    "people": {
+        "Jack": {
+            "institute": "Imperial College London", 
+            "name": "J. Wright"
+        }, 
+        "Shervin": {
+            "institute": "University of Minnesota", 
+            "name": "S. Nourbakhsh"
+        }, 
+        "Yacine": {
+            "institute": "Imperial College London", 
+            "name": "Y. Haddad"
+        }
+    }, 
+    "rerecotag": "(placeholder)", 
+    "selection": "loose", 
+    "title": "Latest prompt (Run B to H)",
+    "date":"21/11/2016",
+    "historyplots":"80X_dataRun2_Prompt_v11_Nov2016-Batch/HistoryPlots/invMass_SC_corr_loose/",
+    "summary_table":"
+    "data_fit_plots":"
+    "mc_fit_plots":"
+    "regions":[ "EB",
+                "EB-gold",
+                "EB-bad",
+                "EB-absEta_0_1",
+                "EB-absEta_1_1.4442",
+                "EE",
+                "EE-gold",
+                "EE-bad",
+                "EE-absEta_1.566_2",
+                "EE-absEta_2_2.5"]
+    
+}
+
+
