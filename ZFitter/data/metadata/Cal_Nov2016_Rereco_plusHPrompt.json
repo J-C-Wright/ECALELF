@@ -1,0 +1,24 @@
+{
+    "people": {
+        "Jack": {
+            "institute": "Imperial College London", 
+            "name": "J. Wright"
+        }, 
+        "Shervin": {
+            "institute": "University of Minnesota", 
+            "name": "S. Nourbakhsh"
+        }, 
+        "Yacine": {
+            "institute": "Imperial College London", 
+            "name": "Y. Haddad"
+        }
+    }, 
+    "dataset": "September rereco up to Run G and prompt H", 
+    "fit": "Breit-Wigner convoluted with Crystal Ball", 
+    "globaltag": "(placeholder)", 
+    "rerecotag": "(placeholder)", 
+    "title": "Latest prompt (Run H) with September Re-reco",
+    "date":""
+}
+
+

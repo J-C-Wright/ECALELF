@@ -160,8 +160,8 @@ def submitSplitRunScripts(jobNames = [],splitScripts = [],queue='1nh',dryRun=Fal
         #Build command
         command = ''
         command += 'bsub'
-        command += ' -R "pool>100000" -q '+ queue
-        command += ' -M 100000 '
+        command += ' -R "pool>700000" -q '+ queue
+        command += ' -M 700000 '
         if len(jobNames) == 0:
             command += ' -J Split' + str(i)
         else:

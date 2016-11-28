@@ -24,8 +24,8 @@ def make_bsub_array(scripts = None, queue = '1nh', label='myJob'):
         #Build command
         command = ''
         command += 'bsub'
-        command += ' -R "pool>100000" -q '+ queue
-        command += ' -M 100000 '
+        command += ' -R "pool>10000" -q '+ queue
+        command += ' -M 10000 '
         command += ' -J '+label+ str(i)
         command += ' < ' + cwd + '/' + script
 
