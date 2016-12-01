@@ -1,12 +1,17 @@
 import json
+from math import sqrt
 
-def make_title_commands(info_dict=None):
+def get_inital_commands_and_title(info_dict=None):
 
     people_dict = info_dict['people']
     validation_name = info_dict['title']
     meeting_date = info_dict['date']
     
+    
     code = '\n'
+    code += '\\documentclass{beamer}\n'
+    code += '\\usepackage{graphicx}\n'
+    code += '\\usepackage[font={small}]{caption}'
 
     #Title and subtitle
     code += '\\title{Monitoring and Validation with Z$\\rightarrow$e$^{+}$e$^{-}$}\n'
@@ -49,6 +54,8 @@ def make_title_commands(info_dict=None):
     #Subject
     code += '\\subject{CMS ECAL Monitoring and Calibration}\n'
     code += '\n'
+    code += '\\begin{document}\n'
+    code += '\\frame{\\titlepage}\n'
 
     return code
 
@@ -59,13 +66,13 @@ def make_introduction_frame(info_dict=None):
     code += '\\frametitle{Introduction}\n'
     code += '\\begin{itemize}\n'
 
-    code += '\\item Dataset: '+info_dict['dataset']+'\n'
-    code += '\\item Global Tag: '+info_dict['globaltag']+'\n'
-    code += '\\item Rereco Tag: '+info_dict['rerecotag']+'\n'
-    code += '\\item MC name: '+info_dict['mcname']+'\n'
-    code += '\\item Invariant mass: '+info_dict['invmass']+'\n'
-    code += '\\item Selection: '+info_dict['selection']+'\n'
-    code += '\\item Fit: '+info_dict['fit']+'\n'
+    code += '\\item Dataset: {'+info_dict['dataset']+'}\n'
+    code += '\\item Global Tag: {'+info_dict['globaltag'].replace('_','\\_')+'}\n'
+    code += '\\item Rereco Tag: {'+info_dict['rerecotag'].replace('_','\\_')+'}\n'
+    code += '\\item MC name: {'+info_dict['mcname'].replace('_','\\_')+'}\n'
+    code += '\\item Invariant mass: {'+info_dict['invmass'].replace('_','\\_')+'}\n'
+    code += '\\item Selection: {'+info_dict['selection'].replace('_','\\_')+'}\n'
+    code += '\\item Fit: {'+info_dict['fit']+'}\n'
     
     code += '\\end{itemize}\n'
     
@@ -83,18 +90,32 @@ def make_scale_slide(info_dict=None):
     code += 'Fit with '+info_dict['fit']+'\n\n\n'
 
     code += '\\dualslide{\n'
-    code += '$ \\Delta P = \\frac{\\Delta m_{data} - \\Delta m_{MC}}{m_{Z}}$\n'
+
+    code += '\\begin{center}\n'
+    code += '\\scalebox{0.8}{\n'
+    code += '\\begin{equation*}\n'
+    code += '   \\Delta P = \\frac{\\Delta m_{data} - \\Delta m_{MC}}{m_{Z}}\n'
+    code += '\\end{equation*}\n'
+    code += '}\n'
+    code += '\\end{center}\n'
+
     code += '}{\n'
+
     code += '\\begin{description}\n'
     code += '\\item [golden:] $R9 > 0.94$\n'
     code += '\\item [showering:] $R9 < 0.94$\n'
     code += '\\end{description}\n'
+
     code += '}\n'
 
     code += '\\begin{table}\n'
     code += '\\begin{center}\n'
-    code += '\\scalebox{0.7}{\n'
-    code += make_scale_table(table_path=info_dict['summary_table'])
+    code += '\\scalebox{0.8}{\n'
+
+    column_labels = ['Events','$\\Delta m_{data}$','$\\Delta m_{MC}$','$\\Delta$P (\%)']
+    column_indices = [1,2,3,4]
+    code += make_table(table_path=info_dict['summary_table'],column_labels=column_labels,column_indices=column_indices)
+
     code += '}\n'
     code += '\\end{center}\n'
     code += '\\end{table}\n'
@@ -113,7 +134,15 @@ def make_width_slide(info_dict=None):
     code += 'Fit with '+info_dict['fit']+'\n\n\n'
 
     code += '\\dualslide{\n'
-    code += '$ placeholder $\n'
+
+    code += '\\begin{center}\n'
+    code += '\\scalebox{0.8}{\n'
+    code += '\\begin{equation*}\n'
+    code += '\\text{add. smear.}  = \\sqrt{2 \\cdot \\left( \\left(\\frac{\\sigma_{CB}}{peak_{CB}}^{data}\\right)^2 - \\left({\\frac{\\sigma_{CB}}{peak_{CB}}}^{MC}\\right)^2 \\right)} \n'
+    code += '\\end{equation*}\n'
+    code += '}\n'
+    code += '\\end{center}\n'
+
     code += '}{\n'
     code += '\\begin{description}\n'
     code += '\\item [golden:] $R9 > 0.94$\n'
@@ -123,8 +152,12 @@ def make_width_slide(info_dict=None):
 
     code += '\\begin{table}\n'
     code += '\\begin{center}\n'
-    code += '\\scalebox{0.7}{\n'
-    code += make_width_table(table_path=info_dict['summary_table'])
+    code += '\\scalebox{0.8}{\n'
+
+    column_labels = ['Events','$\\frac{\\sigma}{m_{data}}$','$\\frac{\\sigma}{m_{data}}$','add. smear']
+    column_indices = [1,7,8,9]
+    code += make_table(table_path=info_dict['summary_table'],column_labels=column_labels,column_indices=column_indices)
+    
     code += '}\n'
     code += '\\end{center}\n'
     code += '\\end{table}\n'
@@ -143,7 +176,9 @@ def make_effsigma_slide(info_dict=None):
     code += 'Fit with '+info_dict['fit']+'\n\n\n'
 
     code += '\\dualslide{\n'
+    code += '\\begin{equation*}\n'
     code += '$ placeholder $\n'
+    code += '\\end{equation*}\n'
     code += '}{\n'
     code += '\\begin{description}\n'
     code += '\\item [golden:] $R9 > 0.94$\n'
@@ -153,8 +188,12 @@ def make_effsigma_slide(info_dict=None):
 
     code += '\\begin{table}\n'
     code += '\\begin{center}\n'
-    code += '\\scalebox{0.7}{\n'
-    code += make_effsigma_table(table_path=info_dict['summary_table'])
+    code += '\\scalebox{0.8}{\n'
+
+    column_labels = ['Events','$\\sigma_{eff30}$(data)','$\\sigma_{eff30}$(MC)','$\\sigma_{eff50}$(data)','$\\sigma_{eff50}$(MC)']
+    column_indices = [1,16,17,18,19]
+    code += make_table(table_path=info_dict['summary_table'],column_labels=column_labels,column_indices=column_indices)
+
     code += '}\n'
     code += '\\end{center}\n'
     code += '\\end{table}\n'
@@ -163,6 +202,132 @@ def make_effsigma_slide(info_dict=None):
     code += '\n'
 
     return code
+
+
+
+
+def make_table_comparison_slide(info_dict=None,table_path1=None,table_path2=None,column_labels=None,column_indices=None,expression=None,title=None):
+
+    code = '\n'
+    code += '\\begin{frame}\n'
+    code += '\\frametitle{%s}\n'%title
+
+    code += 'Fit with '+info_dict['fit']+'\n\n\n'
+
+    code += '\\dualslide{\n'
+    code += '\\begin{equation*}\n'
+    code += '%s\n'%expression
+    code += '\\end{equation*}\n'
+    code += '}{\n'
+    code += '\\begin{description}\n'
+    code += '\\item [golden:] $R9 > 0.94$\n'
+    code += '\\item [showering:] $R9 < 0.94$\n'
+    code += '\\end{description}\n'
+    code += '}\n'
+
+    code += '\\begin{table}\n'
+    code += '\\begin{center}\n'
+    code += '\\scalebox{0.8}{\n'
+
+    code += make_comparison_table(table_path1=table_path1,table_path2=table_path2,column_labels=column_labels,column_indices=column_indices)
+
+    code += '}\n'
+    code += '\\end{center}\n'
+    code += '\\end{table}\n'
+
+    code += '\\end{frame}\n'
+    code += '\n'
+
+    return code
+
+
+
+
+
+
+def make_comparison_table(table_path1=None,table_path2=None,column_labels=None,column_indices=None):
+    
+    with open(table_path1,'r') as tab:
+        lines1 = tab.read().split('\n')
+    with open(table_path2,'r') as tab:
+        lines2 = tab.read().split('\n')
+
+    table = '\\begin{tablular}{|l|c|*{%d}{c|}} \\hline\n'%len(column_labels)
+    table += 'Region & '+' & '.join(column_labels)+'\\\\ \n'
+
+    table += '\\hline\n'
+    table += '\\hline\n'
+
+    for line1,line2 in zip(lines1,lines2):
+
+        if line1 == '': continue
+        if line1[0] == '#': continue
+        if line2 == '': continue
+        if line2[0] == '#': continue
+
+        values1 = line1.split('&')
+        values2 = line2.split('&')
+
+        table += label_parser(values1[0])
+        for i in column_indices:
+            table += ' & ' + number_comparison_parser(string1=values1[i],string2=values2[i])
+        table += '\\\\ \n'
+
+    table += '\\hline\n'
+    table += '\\end{tabular}\n'
+
+    return table
+    
+    
+
+
+def make_table(table_path=None,column_labels=None,column_indices=None):
+
+    with open(table_path,'r') as tab:
+        lines = tab.read().split('\n')
+
+    table = '\\begin{tabular}{|l|c|*{%d}{c|}} \\hline\n'%len(column_labels)
+    table += 'Region & '+' & '.join(column_labels) + '\\\\ \n'
+
+    table += '\\hline\n'
+    table += '\\hline\n'
+
+    for line in lines:
+
+        if line == '': continue
+        if line[0] == '#': continue
+
+        values = line.split('&')
+        table += label_parser(values[0])
+        for i in column_indices:
+            table += ' & ' + number_parser(string=values[i])
+        table += '\\\\ \n'
+    table += '\\hline\n'
+    table += '\\end{tabular}\n'
+
+    return table
+
+def number_comparison_parser(string1=None,string2=None,places=2):
+
+    num1 = float(string1.split('\\pm')[0].replace('$',''))
+    num2 = float(string2.split('\\pm')[0].replace('$',''))
+    err1 = 0
+    err2 = 0
+
+    if len(string1.split('\\pm')) == 2:
+        err1 = float(string1.split('\\pm')[1].replace('$',''))
+    if len(string2.split('\\pm')) == 2:
+        err2 = float(string2.split('\\pm')[1].replace('$',''))
+
+    value = num1 - num2
+    if err1 != 0 and err2 != 0:
+        err = sqrt(err1**2 + err2**2)
+        format_str = '$ %4.'+str(places)+'f \\pm %4.'+str(places)+'f $'
+        return format_str%(value,err)
+    else:
+        format_str = '$ %4.'+str(places)+'f $'
+        return format_str%(value)
+
 
 
 
@@ -175,10 +340,12 @@ def number_parser(string=None,places=2):
         error = float(parts[1])
         format_str = '$ %4.'+str(places)+'f \\pm %4.'+str(places)+'f $'
         return format_str%(value,error)
-    elif len(parts) == 1:
+    elif len(parts) == 1 and '.' in string:
         value = float(parts[0])
         format_str = '$ %4.'+str(places)+'f $'
         return format_str%(value)
+    elif len(parts) == 1 and '.' not in string:
+        return parts[0]
 
 
 
@@ -208,82 +375,6 @@ def label_parser(string=None):
 
     return label
     
-
-
-def make_scale_table(table_path=None):
-
-    with open(table_path,'r') as tab:
-        lines = tab.read().split('\n')
-
-    table = '\\begin{tabular}{|l|c|*{3}{c|}} \\hline\n'
-    table += 'ECAL Region of & selected  & $\\Delta m_{data}$ & $\\Delta m_{MC}$  & $\\Delta$P (\%) \\\\ \n'
-    table += 'the two electrons & events & (GeV) & (GeV) & \\\\ \n'
-    table += '\\hline\n'
-    table += '\\hline\n'
-    for line in lines:
-        if line == '': continue
-        if line[0] == '#': continue
-        values = line.split('&')
-        table += label_parser(values[0])+'&'+values[1]
-        for string in values[2:5]:
-            table += ' & ' + number_parser(string=string)
-        table += '\\\\ \n'
-    table += '\\hline\n'
-    table += '\\end{tabular}\n'
-
-    return table
-
-
-def make_width_table(table_path=None):
-
-    with open(table_path,'r') as tab:
-        lines = tab.read().split('\n')
-
-    table = '\\begin{tabular}{|l|c|*{3}{c|}} \\hline\n'
-    table += 'ECAL Region of & selected  & $\\frac{\\sigma}{m_{data}}$ & $\\frac{\\sigma}{m_{data}}$  & add. smear  \\\\ \n'
-    table += 'the two electrons & events &  &  & \\\\ \n'
-    table += '\\hline\n'
-    table += '\\hline\n'
-    for line in lines:
-        if line == '': continue
-        if line[0] == '#': continue
-        values = line.split('&')
-        table += label_parser(values[0])+'&'+values[1]
-        for string in values[7:10]:
-            table += ' & ' + number_parser(string=string)
-        table += '\\\\ \n'
-    table += '\\hline\n'
-    table += '\\end{tabular}\n'
-
-    return table
-
-def make_effsigma_table(table_path=None):
-
-    with open(table_path,'r') as tab:
-        lines = tab.read().split('\n')
-
-    table = '\\begin{tabular}{|l|c|*{4}{c|}} \\hline\n'
-
-    table += 'ECAL Region of & selected  & $\\sigma_{eff30}$(data) & $\\sigma_{eff30}$(MC)  & $\\sigma_{eff50}$(data) & $\\sigma_{eff50}$(MC)  \\\\ \n'
-    table += 'the two electrons & events &  &  &  &\\\\ \n'
-    table += '\\hline\n'
-    table += '\\hline\n'
-
-    for line in lines:
-        if line == '': continue
-        if line[0] == '#': continue
-        values = line.split('&')
-        table += label_parser(values[0])+'&'+values[1]
-        for string in values[16:20]:
-            table += ' & '+number_parser(string=string)
-        table += '\\\\ \n'
-    table += '\\hline\n'
-    table += '\\end{tabular}\n'
-
-    return table
-    
-
-
 
 
 
@@ -397,59 +488,5 @@ def make_mc_data_six_plots(info_dict=None,regions=None):
 
     return code
 
-
-
-
-
-
-
-
-with open('python/slides_info.json','r') as jf:
-
-    info_dict = json.loads(jf.read())
-
-    title_slide_commands = make_title_commands(info_dict=info_dict)
-
-    intro_frame = make_introduction_frame(info_dict=info_dict)
-
-    scale_frame = make_scale_slide(info_dict=info_dict)
-
-    width_frame = make_width_slide(info_dict=info_dict)
-    effsigma_frame = make_effsigma_slide(info_dict=info_dict)
-    EB_mc_data_plots =  make_barrel_mc_data_plots_slide(info_dict=info_dict)
-    EE_mc_data_plots =  make_endcap_mc_data_plots_slide(info_dict=info_dict)
-
-    EBEE_deltaM_history_plots = make_duo_history_slide(info_dict=info_dict,variable='Delta_m',regions=['EB','EE'],title='EB/EE $\\Delta$m history')
-    EB_deltaM_history_plots = make_duo_history_slide(info_dict=info_dict,variable='Delta_m',regions=['EB-absEta_0_1','EB-absEta_1_1.4442'],title='EB regions $\\Delta$m history')
-    EE_deltaM_history_plots = make_duo_history_slide(info_dict=info_dict,variable='Delta_m',regions=['EE-absEta_1.566_2','EE-absEta_2_2.5'],title='EE regions $\\Delta$m history')
-    EBEE_sigmaCB_history_plots = make_duo_history_slide(info_dict=info_dict,variable='sigma_CB_(Rescaled)',regions=['EB','EE'],title='EB/EB width history')
-    EBEE_chi2_history_plots = make_duo_history_slide(info_dict=info_dict,variable='chi2',regions=['EB','EE'],title='EB/EB $\\chi^2$ history')
-
-
-    content = ''
-    content += '\\documentclass{beamer}\n'
-    content += '\\usepackage{graphicx}\n'
-    content += '\\usepackage[font={small}]{caption}'
-
-    content += title_slide_commands
-    content += '\\begin{document}\n'
-    content += '\\frame{\\titlepage}\n'
-    content += intro_frame
-    content += scale_frame
-    content += width_frame
-    content += effsigma_frame
-    content += EB_mc_data_plots
-    content += EE_mc_data_plots
-    content += EBEE_deltaM_history_plots
-    content += EB_deltaM_history_plots
-    content += EE_deltaM_history_plots
-    content += EBEE_sigmaCB_history_plots
-    content += EBEE_chi2_history_plots
-    content += '\\end{document}\n'
-
-    print content
-
-    with open('python/tex/test_slide.tex','w') as sf:
-        sf.write(content)
 
 

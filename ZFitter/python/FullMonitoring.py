@@ -195,7 +195,6 @@ if __name__ == '__main__':
         #--------------------
         #Submission
         #--------------------
-
         if not monitoringMode:
 
             #Submit and store the job IDs
@@ -233,7 +232,6 @@ if __name__ == '__main__':
         #--------------------
         #Monitoring 
         #--------------------
-
         checkPeriod = 180.0
         starttime = time.time()
         complete = False
@@ -267,7 +265,6 @@ if __name__ == '__main__':
     #--------------------
     #History table
     #--------------------
-
     if not opt.skipTable:
         print 'Jobs are all done! Time to make the table...'
         tableName = hs.makeTable(runRangesFile=runRangesFile,outDirMC=outDirMC,outDirData=outDirData,
@@ -287,9 +284,9 @@ if __name__ == '__main__':
     #--------------------
     #History plots
     #--------------------
-
     plot_path = baseDir+'/HistoryPlots/'+invMass+'_'+selection+'/'
     if not opt.skipPlots:
+        print "Making history plots..."
 
         #Make plots directory
         if not os.path.exists(plot_path):
@@ -398,6 +395,7 @@ if __name__ == '__main__':
     #Slides
     #--------------------
     if opt.metadata != '':
+        print "Making slides..."
         jf = open(opt.metadata)
         info_dict = json.loads(jf.read())
         jf.close()

@@ -225,8 +225,6 @@ def append_variables(path='',file='',data=None,category=''):
     text = re.sub('\\pm','~',text)
     text = re.sub(r'[\\£@#${}^]','',text)
 
-
-
     #Parse top line for variables
     variables = text.split("\n")[0].split(' & ')
 
@@ -272,8 +270,6 @@ def plot_stability( xData = None, xData_err=None,
                     evenX = False, xVar = '', iovs = None, 
                     showMC = False,names = None,style='ggplot',
                     oldStyle=False,colours=None):
-
-#    plt.style.use(style)
 
     left, width    = 0.1, 1.0
     bottom, height = 0.1, 0.5
@@ -324,32 +320,36 @@ def plot_stability( xData = None, xData_err=None,
         xlabels = ax_plot.get_xticklabels()
         plt.setp(xlabels, rotation=90, fontsize=10)
     elif (xDataVar == 'run_max' or xDataVar == 'run_min') and evenX:
-        majorLocator = MultipleLocator(2)
+        step = len(xPlaceholder)/40
+        majorLocator = MultipleLocator(step)
         minorLocator = MultipleLocator(1)
         ax_plot.xaxis.set_major_locator(majorLocator)
         ax_plot.xaxis.set_minor_locator(minorLocator)
         xlabels = ax_plot.get_xticks().tolist()
 
         for i in range(2,len(xData),2):
-            xlabels[i/2+1] = xData.tolist()[i-1]
+            xlabels[i/step+1] = xData.tolist()[i-1]
         for i in range(len(xlabels)):
             if xlabels[i] < 200000: xlabels[i] = ''
+
         for index, row in iovs.iterrows():
             for j in range(0, len(xData)-1):
                 if row['run'] >= xData[j] and row['run'] < xData[j+1]:
                     if 'Run' in row['info'] :
-                        ax_plot.axvline(x=j+1, color='#EBAF3C',ls='--', zorder=5)
+                        ax_plot.axvline(x=j+1, color='#EBAF3C',ls='--', zorder=5,lw=2)
                     else :
-                        ax_plot.axvline(x=j+1, color='#1072C3',ls='--', zorder=5)
+                        ax_plot.axvline(x=j+1, color='#1072C3',ls='--', zorder=5,lw=2)
         ax_plot.set_xticklabels(xlabels)
         xlabels = ax_plot.get_xticklabels()
         plt.setp(xlabels, rotation=90, fontsize=10)
 
     ax_plot.xaxis.grid(True, which="minor")
     ax_plot.yaxis.grid()
+    ax_plot.set_axisbelow(True)
     ax_hist.xaxis.grid(True, which="minor")
     ax_hist.yaxis.grid()
     ax_hist.xaxis.set_ticks([])
+    ax_hist.set_axisbelow(True)
 
     #Get and set the limits for the histogram
     ymin = 9999
