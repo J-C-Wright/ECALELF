@@ -1,0 +1,24 @@
+{
+    "people": {
+        "Jack": {
+            "institute": "Imperial College London", 
+            "name": "J. Wright"
+        }, 
+        "Shervin": {
+            "institute": "University of Minnesota", 
+            "name": "S. Nourbakhsh"
+        }, 
+        "Yacine": {
+            "institute": "Imperial College London", 
+            "name": "Y. Haddad"
+        }
+    }, 
+    "dataset": "Cal_Nov2016_ref-weightsReco",
+    "fit": "Breit-Wigner convoluted with Crystal Ball", 
+    "globaltag": "(placeholder)", 
+    "rerecotag": "(placeholder)", 
+    "title": "Cal_Nov2016_ref-weightsReco",
+    "date":""
+}
+
+
