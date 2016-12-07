@@ -11,6 +11,7 @@ import re
 import string
 from math import sqrt
 import matplotlib.cm as cm
+import matplotlib.dates as mdates
 
 region_labels = {
     "EB"      : "EB",
@@ -269,7 +270,7 @@ def plot_stability( xData = None, xData_err=None,
                     label = '', category = '', path = "",
                     evenX = False, xVar = '', iovs = None, 
                     showMC = False,names = None,style='ggplot',
-                    oldStyle=False,colours=None):
+                    oldStyle=False,colours=None,y_range=None):
 
     left, width    = 0.1, 1.0
     bottom, height = 0.1, 0.5
@@ -292,6 +293,7 @@ def plot_stability( xData = None, xData_err=None,
     xPlaceholder = range(1,1+len(xData),1)
  
     for data_dataset,data_errorset,colour in zip(data_datasets,data_errorsets,colours):
+
         if evenX:
             if oldStyle:
                 ax_plot.errorbar(xPlaceholder,data_dataset,yerr=data_errorset,capthick=0,marker='o',ms=4,c=colour,ls='none')
@@ -305,11 +307,31 @@ def plot_stability( xData = None, xData_err=None,
 
     # customise the axes
     xDataVar = xData.name
+    
     if xDataVar == 'time':
-        ax_plot.xaxis.set_minor_locator(dates.DayLocator(interval=10))
-        ax_plot.xaxis.set_minor_formatter(dates.DateFormatter('%d\n%a'))
+
+        conv = np.vectorize(mdates.strpdate2num('%Y-%m-%d'))
+    
+        xmin,xmax = ax_plot.get_xlim()
+
+        for index,row in iovs.iterrows():
+
+            iov_date = str(row['date']).split()[0]
+            date_number = conv(iov_date)
+
+            if date_number < xmin or date_number > xmax: continue
+
+            if 'Run' in row['info']:
+                #'#EBAF3C #1072C3
+                ax_plot.axvline(x=date_number,color='orange',ls='--',zorder=5,lw=4)
+            else:
+                ax_plot.axvline(x=date_number,color='blue',ls='--', zorder=6,lw=1.5)
+
+        ax_plot.xaxis.set_minor_locator(dates.DayLocator(interval=len(data_dataset)/20))
+        ax_plot.xaxis.set_minor_formatter(dates.DateFormatter('%d'))
         ax_plot.xaxis.set_major_locator(dates.MonthLocator())
-        ax_plot.xaxis.set_major_formatter(dates.DateFormatter('\n\n\n%b\n%Y'))
+        ax_plot.xaxis.set_major_formatter(dates.DateFormatter('\n\n%b\n%Y'))
+
     elif (xDataVar == 'run_max' or xDataVar == 'run_min') and not evenX:
         majorLocator = MultipleLocator(125)
         minorLocator = MultipleLocator(62.5)
@@ -327,18 +349,22 @@ def plot_stability( xData = None, xData_err=None,
         ax_plot.xaxis.set_minor_locator(minorLocator)
         xlabels = ax_plot.get_xticks().tolist()
 
-        for i in range(2,len(xData),2):
-            xlabels[i/step+1] = xData.tolist()[i-1]
+        for i in range(0,len(xData),2):
+            xlabels[i/step+1] = xData.tolist()[i+1]
         for i in range(len(xlabels)):
             if xlabels[i] < 200000: xlabels[i] = ''
 
         for index, row in iovs.iterrows():
             for j in range(0, len(xData)-1):
                 if row['run'] >= xData[j] and row['run'] < xData[j+1]:
+                    
                     if 'Run' in row['info'] :
-                        ax_plot.axvline(x=j+1, color='#EBAF3C',ls='--', zorder=5,lw=2)
+                   
+                        ax_plot.axvline(x=j+1, color='orange',ls='--', zorder=5,lw=4)
                     else :
-                        ax_plot.axvline(x=j+1, color='#1072C3',ls='--', zorder=5,lw=2)
+                  
+                        ax_plot.axvline(x=j+1, color='blue',ls='--', zorder=6,lw=1.5)
+
         ax_plot.set_xticklabels(xlabels)
         xlabels = ax_plot.get_xticklabels()
         plt.setp(xlabels, rotation=90, fontsize=10)
@@ -365,6 +391,11 @@ def plot_stability( xData = None, xData_err=None,
             ymaxtemp = round(data_dataset.max()) + 1
             if ymintemp < ymin: ymin = ymintemp
             if ymaxtemp > ymax: ymax = ymaxtemp
+
+    if y_range is not None:
+        print "Using user-set range: ", y_range
+        ymin = y_range[0]
+        ymax = y_range[1]
 
     ax_plot.set_ylim((ymin,ymax))
     ax_hist.set_ylim((ymin,ymax))

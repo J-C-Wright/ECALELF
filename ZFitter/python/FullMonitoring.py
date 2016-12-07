@@ -156,9 +156,6 @@ if __name__ == '__main__':
     #--------------------
 
     #Creating the output directories
-    outDirData,outDirMC = hs.createOutputDirectories(baseDir=baseDir,configFile=configFile,
-                                selection=selection,invMass=invMass)
-
     if not opt.skipFits:
 
         ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -175,6 +172,9 @@ if __name__ == '__main__':
 
         #Making the split runrange files in tmp
         splitFiles = hs.createSplitRunRangeFiles(runRangesFile=runRangesFile)
+        outDirData,outDirMC = hs.createOutputDirectories(baseDir=baseDir,configFile=configFile,
+                                selection=selection,invMass=invMass)
+
 
         #Creating the job scripts
         history_scripts = hs.createSplitRunScripts( splitFiles=splitFiles,configFile=configFile,
@@ -261,6 +261,9 @@ if __name__ == '__main__':
             complete = jh.check_all_complete(command_dict=jobs_command_dict,product_dict=jobs_products_dict)
             if not complete:
                 time.sleep(checkPeriod - ((time.time() - starttime) % checkPeriod))
+    else:
+        outDirData,outDirMC = hs.createOutputDirectories(baseDir=baseDir,configFile=configFile,
+                                selection=selection,invMass=invMass)
 
     #--------------------
     #History table
